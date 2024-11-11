@@ -18,6 +18,10 @@ class GitDocsService {
   getContent(docName: string, path: string, docVersion: string = "master") {
     return http.get<string>(`content/${docName}/${path}?DocVersion=${docVersion}`);
   }
+
+  getDocVersions(docName: string) {
+    return http.get<string[]>(`docs/${docName}/versions`);
+  }
 }
 
 export default new GitDocsService();

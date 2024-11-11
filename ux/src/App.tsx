@@ -17,7 +17,7 @@ function App() {
 
   return (
     <div className="container">
-      <h1>GIT Docs Demo</h1>
+      <h1>Git Docs Demo</h1>
       <div className="card projectList">
         <h2>All Projects</h2>
         {
