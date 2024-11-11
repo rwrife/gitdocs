@@ -1,0 +1,6 @@
+@GitDocs_HostAddress = http://localhost:5230
+
+GET {{GitDocs_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

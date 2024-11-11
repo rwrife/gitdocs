@@ -1,0 +1,38 @@
+.modalBack {
+  position: absolute;
+  height: 100vh;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  background-color: rgba(0, 0, 0, 0.322);
+}
+
+.modalContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  height: 30%;
+  max-width: 60%;
+  background-color: rgb(39, 43, 114);
+  padding: 3rem;
+  border-radius: 5px;
+}
+
+.modalButtons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.modalInput {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}

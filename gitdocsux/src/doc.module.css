@@ -1,0 +1,37 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  place-content: top;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.tocContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  place-content: top;
+  width: 300px;
+  overflow: scroll-y;
+
+}
+
+.contentContainer {
+  width: 900px;
+  overflow-x: auto;
+  text-align: left;
+
+}
+
+.tocContainer div {
+  text-align: left;
+}
+
+.tocContainer div svg {
+  margin-right: 5px;
+}
+
+.tocContainer .tocChildren {
+  padding-left: 15px;
+}
