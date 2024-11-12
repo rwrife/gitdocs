@@ -6,8 +6,8 @@ export const NewProject = ({ closeModal }) => {
 
   const [projectName, setProjectName] = React.useState<string>("");
 
-  const saveProject = () => {
-    GitDocsService.saveProject(projectName.replace(/\s/g, '-').toLowerCase());
+  const saveProject = async () => {
+    await GitDocsService.saveProject(projectName.replace(/\s/g, '-'));
     closeModal();
   };
 

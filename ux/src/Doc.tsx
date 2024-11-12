@@ -42,13 +42,16 @@ function Doc(props: any) {
     loadVersions();
   }, [docName]);
 
-  useEffect(() => {
+  const loadToc = () => {
     if (docName && version) {
       GitDocsService.getDocToc(docName, "", version).then((response) => {
-        console.log(response.data);
         setToc(response.data);
       });
     }
+  };
+
+  useEffect(() => {
+    loadToc();
   }, [docName, version]);
 
   const loadChildren = (tocItem: TocItem) => {
@@ -108,8 +111,17 @@ function Doc(props: any) {
 
     const resolvedPath = new URL(contentPath, `${gitdochost}/content/${docName}/${basePath}/`).pathname;
     console.log(resolvedPath);
-    const contentUrl = `${gitdochost}${resolvedPath}?DocVersion=master`;
+    const contentUrl = `${gitdochost}${resolvedPath}?DocVersion=${version}`;
     return contentUrl;
+  }
+
+  const publishVersion = () => {
+    if (docName && version && version !== "master") {
+      GitDocsService.publishVersion(docName, version).then(() => {
+        loadVersions();
+        setVersion("master");
+      });
+    }
   }
 
   return (
@@ -117,20 +129,30 @@ function Doc(props: any) {
       <div className={styles.container}>
         <div className={styles.tocContainer}>
           <Link to="/">Back to Docs</Link>
-          <select name="version" id="version" onChange={(e) => setVersion(e.target.value)} className={styles.versionList}>
+          <select value={version} defaultValue={version} name="version" id="version" onChange={(e) => setVersion(e.target.value)} className={styles.versionList}>
             {
               versions.map((v) => {
-                return <option key={v} value={v} selected={v === version}>{v}</option>
+                return <option key={v} value={v}>{generateTitle(v, false)}</option>
               })
             }
           </select>
           <div className={styles.versionControls}>
             <button onClick={() => setShowVersion(true)}>New Version</button>
-            {version != "master" && <button>Publish</button>}
+            {version != "master" && <button onClick={() => publishVersion()}>Publish</button>}
           </div>
           {renderChildren(toc)}
           {version != "master" && <button onClick={() => setShowAddFile(true)}>Add Document</button>}
-          {version != "master" && <button>Upload File</button>}
+          <input
+            id="fileInput"
+            type="file"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) {
+                GitDocsService.addFile(docName, version, e.target.files[0])
+              }
+            }}
+          />
+          {version != "master" && <button onClick={() => document.getElementById("fileInput").click()}>Upload File</button>}
         </div>
         <div className={styles.contentContainer}>
           <Markdown
@@ -165,7 +187,10 @@ function Doc(props: any) {
           loadVersions();
           setVersion(newver);
         }} />}
-        {showAddFile && <AddFile docName={docName} docVersion={version} closeModal={() => setShowAddFile(false)} />}
+        {showAddFile && <AddFile docName={docName} docVersion={version} closeModal={() => {
+          setShowAddFile(false);
+          loadToc();
+        }} />}
       </div>
 
     </>

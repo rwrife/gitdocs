@@ -7,8 +7,8 @@ export const NewVersion = ({ docName, closeModal }) => {
   const [versionName, setVersionName] = React.useState<string>("");
 
   const saveVersion = async () => {
-    await GitDocsService.saveVersion(docName, versionName);
-    closeModal(versionName);
+    await GitDocsService.saveVersion(docName, versionName.replace(/\s/g, '-'));
+    closeModal(versionName.replace(/\s/g, '-'));
   };
 
   return (

@@ -28,7 +28,7 @@ class GitDocsService {
     return http.post(`publisher/branch?repoName=${docName}&branchName=${versionName}`);
   }
 
-  addFile(docName: string, versionName: string, filePath: string, content: string) {
+  addTextFile(docName: string, versionName: string, filePath: string, content: string) {
     var axclient = axios.create({
       baseURL: gitdochost
     })
@@ -39,6 +39,25 @@ class GitDocsService {
     formData.append("file", textAsFile, filePath);
 
     return axclient.post(`publisher/file/${filePath}?repoName=${docName}&branchName=${versionName}`, formData);
+  }
+
+  addFile(docName: string, versionName: string, file: any) {
+    console.log(docName, versionName, file);
+    var axclient = axios.create({
+      baseURL: gitdochost,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return axclient.post(`publisher/file/${file.name}?repoName=${docName}&branchName=${versionName}`, formData);
+  }
+
+  publishVersion(docName: string, versionName: string) {
+    return http.post(`publisher/publish?repoName=${docName}&branchName=${versionName}`);
   }
 }
 

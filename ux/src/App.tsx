@@ -10,10 +10,14 @@ function App() {
   const [docs, setDocs] = useState<string[]>([]);
   const [showModal, setShowModal] = useState(false)
 
-  useEffect(() => {
+  const loadDocs = () => {
     GitDocsService.getAllDocumenets().then((response) => {
       setDocs(response.data);
     })
+  };
+
+  useEffect(() => {
+    loadDocs();
   }, [showModal])
 
   return (
@@ -25,7 +29,10 @@ function App() {
           docs.map(doc => (<Link key={doc} to={`/doc/${doc}`}>{generateTitle(doc, false)}</Link>))
         }
       </div>
-      <button onClick={() => setShowModal(true)}>New Project</button>
+      <button onClick={() => {
+        setShowModal(true);
+        loadDocs();
+      }}>New Project</button>
       {showModal && <NewProject closeModal={() => setShowModal(false)} />}
     </div >
   )

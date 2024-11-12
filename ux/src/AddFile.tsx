@@ -6,8 +6,8 @@ export const AddFile = ({ docName, docVersion, closeModal }) => {
   const [filePath, setFilePath] = React.useState<string>("");
   const [fileContent, setFileContent] = React.useState<string>("");
 
-  const saveFile = () => {
-    GitDocsService.addFile(docName, docVersion, filePath, fileContent);
+  const saveFile = async () => {
+    await GitDocsService.addTextFile(docName, docVersion, filePath, fileContent);
     closeModal();
   };
 
