@@ -106,6 +106,10 @@ function Doc(props: any) {
     }
     //https://localhost:7089/content/test/screen.png?DocVersion=master
 
+    if (contentPath.startsWith("/")) {
+      return `${gitdochost}/content/${docName}${contentPath}?DocVersion=${version}`;
+    }
+
     basePath = basePath.split("/").slice(0, -1).join("/");
     console.log(basePath, contentPath);
 
