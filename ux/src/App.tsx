@@ -3,7 +3,7 @@ import './App.css'
 
 import GitDocsService from "../gitdocs.service";
 import { NewProject } from './NewProject';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { generateTitle } from '../utils';
 
 import { IoAddSharp } from "react-icons/io5";
@@ -12,6 +12,7 @@ import GitRepo from '../gitRepo';
 function App() {
   const [docs, setDocs] = useState<GitRepo[]>([]);
   const [showModal, setShowModal] = useState(false)
+  const navigate = useNavigate();
 
   const loadDocs = () => {
     GitDocsService.getAllDocumenets().then((response) => {
@@ -62,7 +63,9 @@ function App() {
       <div className="container">
         {
           docs.map(doc => (
-            <div className="doc-card">
+            <div className="doc-card" onClick={() => {
+              navigate(`/doc/${doc.name}`);
+            }}>
               <div className="doc-card-title"><Link key={doc.name} to={`/doc/${doc.name}`}>{generateTitle(doc.title, false)}</Link></div>
               <div className="doc-card-desc">
                 {doc.description}
