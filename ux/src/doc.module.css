@@ -21,7 +21,6 @@
   width: 900px;
   overflow-x: auto;
   text-align: left;
-
 }
 
 .tocContainer div {
@@ -52,4 +51,16 @@
   display: flex;
   flex-direction: row;
   gap: 10px;
+}
+
+.versionControls>button {
+  width: 50%;
+}
+
+.contentContainer img {
+  max-width: 100%;
+}
+
+body>div>h1 {
+  text-align: left;
 }

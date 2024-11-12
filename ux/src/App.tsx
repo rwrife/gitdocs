@@ -4,6 +4,7 @@ import './App.css'
 import GitDocsService from "../gitdocs.service";
 import { NewProject } from './NewProject';
 import { Link } from 'react-router-dom';
+import { generateTitle } from '../utils';
 
 function App() {
   const [docs, setDocs] = useState<string[]>([]);
@@ -21,7 +22,7 @@ function App() {
       <div className="card projectList">
         <h2>All Projects</h2>
         {
-          docs.map(doc => (<Link key={doc} to={`/doc/${doc}`}>{doc}</Link>))
+          docs.map(doc => (<Link key={doc} to={`/doc/${doc}`}>{generateTitle(doc, false)}</Link>))
         }
       </div>
       <button onClick={() => setShowModal(true)}>New Project</button>

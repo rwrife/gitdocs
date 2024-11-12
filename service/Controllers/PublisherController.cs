@@ -74,7 +74,7 @@
       return Ok();
     }
 
-    [HttpPost("branch/{*FilePath}")]
+    [HttpPost("file/{*FilePath}")]
       public ActionResult UpdateFileInBranch(string repoName, string branchName, string FilePath, IFormFile file)
     {
       if (file == null || file.Length == 0)
@@ -89,7 +89,6 @@
 
         // Process the file data as needed (e.g., save or analyze it)
 
-
         var reposPath = _gitClient.VerifyReposFolder();
         string repoPath = Path.Combine(reposPath, repoName);
 
@@ -99,7 +98,6 @@
         }
         try
         {
-
           _gitClient.UpdateFile(repoPath, branchName, FilePath, fileData);
         } catch (EmptyCommitException e)
         {

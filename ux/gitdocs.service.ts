@@ -1,4 +1,5 @@
-import http from './http-common';
+import axios from 'axios';
+import http, { gitdochost } from './http-common';
 import TocItem from './tocItem';
 
 class GitDocsService {
@@ -21,6 +22,23 @@ class GitDocsService {
 
   getDocVersions(docName: string) {
     return http.get<string[]>(`docs/${docName}/versions`);
+  }
+
+  saveVersion(docName: string, versionName: string) {
+    return http.post(`publisher/branch?repoName=${docName}&branchName=${versionName}`);
+  }
+
+  addFile(docName: string, versionName: string, filePath: string, content: string) {
+    var axclient = axios.create({
+      baseURL: gitdochost
+    })
+
+    const formData = new FormData();
+
+    const textAsFile = new Blob([content], { type: "text/plain" });
+    formData.append("file", textAsFile, filePath);
+
+    return axclient.post(`publisher/file/${filePath}?repoName=${docName}&branchName=${versionName}`, formData);
   }
 }
 

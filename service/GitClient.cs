@@ -105,13 +105,28 @@ namespace GitDocs
           }
           var latestCommit = new Repository(worktreePath).Head.Tip;
           repo.Refs.UpdateTarget(targetBranch.Reference, latestCommit.Id);
+
+          // Check the status of the file in the repository
+          var status = repo.RetrieveStatus(fileName);
+          if(status != FileStatus.Unaltered)
+          {
+            //DiscardFileChanges(repo, fileName );
+          }
         }
+
       }
       finally
       {
         // Clean up the worktree directory
         Directory.Delete(worktreePath, true);
       }
+    }
+
+
+    public void DiscardFileChanges(Repository repo, string filePath)
+    {
+      var options = new CheckoutOptions { CheckoutModifiers = CheckoutModifiers.Force };
+      repo.CheckoutPaths(repo.Head.FriendlyName, new[] { filePath }, options);
     }
 
     private void CreateWorktree(string repoPath, string worktreePath, string branchName)

@@ -2,28 +2,30 @@ import React from "react";
 import styles from "./modal.module.css";
 import GitDocsService from "../gitdocs.service";
 
-export const NewProject = ({ closeModal }) => {
+export const NewVersion = ({ docName, closeModal }) => {
 
-  const saveProject = (projectName: string) => {
-    GitDocsService.saveProject(projectName);
-    closeModal();
+  const [versionName, setVersionName] = React.useState<string>("");
+
+  const saveVersion = async () => {
+    await GitDocsService.saveVersion(docName, versionName);
+    closeModal(versionName);
   };
 
   return (
     <div className={styles.modalBack}>
       <div className={styles.modalContainer}>
         <div>
-          <h2>New Document Project</h2>
+          <h2>New Version</h2>
           <p>
-            Enter the name of a new document project below and hit save.
+            Enter a new, unique, version name below, based on master.
           </p>
-          <input className={styles.modalInput} type="text" placeholder="Project Name" />
+          <input onChange={(e) => setVersionName(e.target.value)} className={styles.modalInput} type="text" placeholder="Version Name" />
         </div>
         <div className={styles.modalButtons}>
           <button onClick={closeModal} className={styles.modal__closeBtn}>
             Cancel
           </button>
-          <button onClick={() => saveProject("New Project")} className={styles.modal__saveBtn}>
+          <button onClick={() => saveVersion()} className={styles.modal__saveBtn}>
             Save
           </button>
         </div>

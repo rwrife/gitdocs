@@ -16,6 +16,9 @@ import {
   encodeRoute
 } from './routeHelper';
 import { gitdochost } from '../http-common';
+import { NewVersion } from './NewVersion';
+import { AddFile } from './AddFile';
+import { generateTitle } from '../utils';
 
 function Doc(props: any) {
   const { docName, '*': filePath } = useParams();
@@ -24,14 +27,19 @@ function Doc(props: any) {
   const [versions, setVersions] = useState<string[]>([]);
   const [markdown, setMarkdown] = useState<string>("Click on a document to the left to view its contents");
   const location = useLocation();
+  const [showVersion, setShowVersion] = useState<boolean>(false);
+  const [showAddFile, setShowAddFile] = useState<boolean>(false);
 
-
-  useEffect(() => {
+  const loadVersions = () => {
     if (docName) {
       GitDocsService.getDocVersions(docName).then((response) => {
         setVersions(response.data);
       });
     }
+  };
+
+  useEffect(() => {
+    loadVersions();
   }, [docName]);
 
   useEffect(() => {
@@ -53,14 +61,13 @@ function Doc(props: any) {
   }
 
   useEffect(() => {
-    if (filePath && docName) {
-      try {
-        GitDocsService.getContent(docName, filePath, version).then((response) => {
-          setMarkdown(response.data);
-        });
-      } catch (e) {
-        setMarkdown("Error loading document");
-      }
+    if (filePath && docName && version) {
+      console.log('loading content', docName, filePath, version);
+
+      GitDocsService.getContent(docName, filePath, version).then((response) => {
+        setMarkdown(response.data);
+      }).catch((e) => { setMarkdown("Error loading document, may not exist in branch."); });
+
     } else {
       setMarkdown("Click on a document to the left to view its contents");
     }
@@ -89,28 +96,24 @@ function Doc(props: any) {
     })
   }
 
-
-
-  const getContentUrl = (contentUrl: string, isResource: boolean) => {
+  const getContentUrl = (basePath: string = "", contentPath: string, isResource: boolean) => {
     // do nothing with fqdn urls (do we have a list of protocols?)
-    if (isExternalLink(contentUrl)) {
-      return contentUrl;
+    if (isExternalLink(contentPath)) {
+      return contentPath;
     }
     //https://localhost:7089/content/test/screen.png?DocVersion=master
-    console.log(contentUrl, location);
 
-    if (filePath) {
-      const localDocUrl = getRouteDiff(filePath, location.pathname);
-      console.log(localDocUrl);
-    }
+    basePath = basePath.split("/").slice(0, -1).join("/");
+    console.log(basePath, contentPath);
 
-    contentUrl = `${gitdochost}/content/${docName}/${contentUrl}?DocVersion=master`;
-
+    const resolvedPath = new URL(contentPath, `${gitdochost}/content/${docName}/${basePath}/`).pathname;
+    console.log(resolvedPath);
+    const contentUrl = `${gitdochost}${resolvedPath}?DocVersion=master`;
     return contentUrl;
   }
 
   return (
-    <><h1>{docName}</h1>
+    <><h1>{generateTitle(docName, false)}</h1>
       <div className={styles.container}>
         <div className={styles.tocContainer}>
           <Link to="/">Back to Docs</Link>
@@ -122,12 +125,12 @@ function Doc(props: any) {
             }
           </select>
           <div className={styles.versionControls}>
-            <button>New Version</button>
-            <button>Publish Version</button>
+            <button onClick={() => setShowVersion(true)}>New Version</button>
+            {version != "master" && <button>Publish</button>}
           </div>
           {renderChildren(toc)}
-          <button>Add Document</button>
-          <button>Upload File</button>
+          {version != "master" && <button onClick={() => setShowAddFile(true)}>Add Document</button>}
+          {version != "master" && <button>Upload File</button>}
         </div>
         <div className={styles.contentContainer}>
           <Markdown
@@ -135,7 +138,7 @@ function Doc(props: any) {
               a: (props) => {
                 if (isRouteToMd(props.href)) {
                   return (<Link to={customEncodeURIComponent(
-                    getContentUrl(props.href, false))}>{props?.children}</Link>);
+                    getContentUrl(filePath, props.href, false))}>{props?.children}</Link>);
                 } else {
                   const routeExt = getRouteExtension(props.href);
 
@@ -145,19 +148,26 @@ function Doc(props: any) {
                     splitRoute.push('index.md');
 
                     return (<Link to={encodeRoute(
-                      getContentUrl(splitRoute.join('/'), false))}>{props?.children}</Link>);
+                      getContentUrl(filePath, splitRoute.join('/'), false))}>{props?.children}</Link>);
                   }
 
                   // anchor to external resource
                   return (<a target="_blank" rel="noopener noreferrer"
-                    href={getContentUrl(props.href, true)}>{props?.children}</a>);
+                    href={getContentUrl(filePath, props.href, true)}>{props?.children}</a>);
                 }
               },
-              img: (props) => (<img alt={`${props.alt}`} src={getContentUrl(props.src, true)} />)
+              img: (props) => (<img alt={`${props.alt}`} src={getContentUrl(filePath, props.src, true)} />)
             }}
           >{markdown}</Markdown>
         </div>
+        {showVersion && <NewVersion docName={docName} closeModal={(newver) => {
+          setShowVersion(false);
+          loadVersions();
+          setVersion(newver);
+        }} />}
+        {showAddFile && <AddFile docName={docName} docVersion={version} closeModal={() => setShowAddFile(false)} />}
       </div>
+
     </>
   )
 }
