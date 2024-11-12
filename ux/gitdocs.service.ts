@@ -1,15 +1,17 @@
 import axios from 'axios';
 import http, { gitdochost } from './http-common';
 import TocItem from './tocItem';
+import GitRepo from './gitRepo';
 
 class GitDocsService {
   getAllDocumenets() {
-    return http.get<string[]>('/publisher');
+    return http.get<GitRepo[]>('/publisher');
   }
 
-  saveProject(projectName: string) {
+  saveProject(projectName: string, projectDesc: string, projectTags: string) {
     projectName = projectName.replace(/\s/g, '-').toLowerCase();
-    return http.post(`/publisher?repoName=${projectName}`);
+    projectTags = projectTags.split(",").map(tag => tag.trim()).join(",").replace(/\s/g, '-').toLowerCase();
+    return http.post(`/publisher?repoName=${projectName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}`);
   }
 
   getDocToc(docName: string, path: string, docVersion: string = "master", showHidden: boolean = false) {

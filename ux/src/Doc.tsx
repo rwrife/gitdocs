@@ -129,7 +129,7 @@ function Doc(props: any) {
   }
 
   return (
-    <><h1>{generateTitle(docName, false)}</h1>
+    <><div className={styles.doctitle}>{generateTitle(docName, false)}</div>
       <div className={styles.container}>
         <div className={styles.tocContainer}>
           <Link to="/">Back to Docs</Link>

@@ -5,6 +5,7 @@
   using System.IO;
   using GitDocs;
   using LibGit2Sharp;
+  using System.Linq;
 
   [ApiController]
   [Route("[controller]")]
@@ -15,18 +16,41 @@
     private readonly GitClient _gitClient = new GitClient();
 
     [HttpGet]
-    public ActionResult<string[]> GetAllManagedRepos()
+    public ActionResult<List<object>> GetAllManagedRepos()
     {
       var reposPath = _gitClient.VerifyReposFolder();
+      var childFolders = Directory.GetDirectories(reposPath);
 
-      string[] childFolders = Directory.GetDirectories(reposPath).Select(
-        x => Path.GetRelativePath(reposPath, x)).ToArray();
+      var repoDetails = new List<object>();
 
-      return Ok(childFolders);
+      foreach (var folder in childFolders)
+      {
+        var gitPath = Path.Combine(folder, ".git");
+
+        if (Directory.Exists(gitPath))
+        {
+          using (var repo = new Repository(folder))
+          {
+            var description = repo.Config.FirstOrDefault(c => c.Key == "repository.description")?.Value?.ToString() ?? "";
+            var title = repo.Config.FirstOrDefault(c => c.Key == "repository.title")?.Value?.ToString() ?? Path.GetFileName(folder);
+            var tags = repo.Config.FirstOrDefault(c => c.Key == "repository.tags")?.Value?.ToString() ?? "";
+
+            repoDetails.Add(new
+            {
+              name = Path.GetFileName(folder),
+              description,
+              title,
+              tags
+            });
+          }
+        }
+      }
+
+      return Ok(repoDetails);
     }
 
     [HttpPost]
-    public ActionResult CreateManagedRepo(string repoName)
+    public ActionResult CreateManagedRepo(string repoName, string description, string title, string tags)
     {
       var reposPath = _gitClient.VerifyReposFolder();
 
@@ -39,6 +63,22 @@
 
       Directory.CreateDirectory(repoPath);
       _gitClient.GitInit(repoPath);
+
+      try
+      {
+        using (var repo = new Repository(repoPath))
+        {
+          repo.Config.Set("repository.description", description);
+
+          // Use the provided title or default to the repo name if no title is given
+          repo.Config.Set("repository.title", string.IsNullOrEmpty(title) ? repoName : title);
+          repo.Config.Set("repository.tags", tags);
+        }
+      }
+      catch (LibGit2SharpException ex)
+      {
+        Console.Write(ex);
+      }
 
       return Ok();
     }

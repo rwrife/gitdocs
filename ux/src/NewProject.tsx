@@ -5,9 +5,11 @@ import GitDocsService from "../gitdocs.service";
 export const NewProject = ({ closeModal }) => {
 
   const [projectName, setProjectName] = React.useState<string>("");
+  const [projectDesc, setProjectDesc] = React.useState<string>("");
+  const [projectTags, setProjectTags] = React.useState<string>("");
 
   const saveProject = async () => {
-    await GitDocsService.saveProject(projectName.replace(/\s/g, '-'));
+    await GitDocsService.saveProject(projectName, projectDesc, projectTags);
     closeModal();
   };
 
@@ -20,6 +22,8 @@ export const NewProject = ({ closeModal }) => {
             Enter the name of a new document project below and hit save.
           </p>
           <input onChange={(e) => setProjectName(e.target.value)} className={styles.modalInput} type="text" placeholder="Project Name" />
+          <input onChange={(e) => setProjectDesc(e.target.value)} className={styles.modalInput} type="text" placeholder="Description" />
+          <input onChange={(e) => setProjectTags(e.target.value)} className={styles.modalInput} type="text" placeholder="Tags" />
         </div>
         <div className={styles.modalButtons}>
           <button onClick={closeModal} className={styles.modal__closeBtn}>

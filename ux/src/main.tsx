@@ -5,15 +5,21 @@ import App from './App.tsx'
 import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import Doc from './Doc.tsx';
+import { DiGit } from "react-icons/di";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="doc/:docName/*" element={<Doc />} />
+    <>
+      <div className="header">
+        <DiGit /><div>Git Docs Demo</div>
+      </div>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="doc/:docName/*" element={<Doc />} />
 
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </>
   </StrictMode>
 )

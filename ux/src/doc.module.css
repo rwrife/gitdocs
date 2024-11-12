@@ -3,8 +3,14 @@
   flex-direction: row;
   gap: 20px;
   place-content: top;
-  max-width: 1200px;
-  width: 100%;
+  max-width: 1260px;
+  flex-wrap: wrap;
+  margin: auto;
+}
+
+.header {
+  text-align: left;
+
 }
 
 .tocContainer {
@@ -63,4 +69,13 @@
 
 body>div>h1 {
   text-align: left;
+}
+
+.doctitle {
+  margin: auto;
+  max-width: 1260px;
+  font-size: 3.2em;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  ;
 }

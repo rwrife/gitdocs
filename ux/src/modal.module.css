@@ -39,4 +39,5 @@
   cursor: pointer;
   transition: border-color 0.25s;
   width: 90%;
+  margin-bottom: 15px;
 }
