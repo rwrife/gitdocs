@@ -81,6 +81,7 @@
   font-weight: normal;
 }
 
+.importdevops-button,
 .addproject-button {
   width: 150px;
   height: 150px;
@@ -88,6 +89,7 @@
   border: solid 1px rgba(10, 10, 10, .3);
 }
 
+.importdevops-button svg,
 .addproject-button svg {
   display: block;
   margin: auto;

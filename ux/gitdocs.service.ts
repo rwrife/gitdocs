@@ -9,9 +9,9 @@ class GitDocsService {
   }
 
   saveProject(projectName: string, projectDesc: string, projectTags: string) {
-    projectName = projectName.replace(/\s/g, '-').toLowerCase();
+    const repoName = projectName.replace(/\s/g, '-').toLowerCase();
     projectTags = projectTags.split(",").map(tag => tag.trim()).join(",").replace(/\s/g, '-').toLowerCase();
-    return http.post(`/publisher?repoName=${projectName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}`);
+    return http.post(`/publisher?repoName=${repoName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}`);
   }
 
   getDocToc(docName: string, path: string, docVersion: string = "master", showHidden: boolean = false) {
@@ -28,6 +28,10 @@ class GitDocsService {
 
   saveVersion(docName: string, versionName: string) {
     return http.post(`publisher/branch?repoName=${docName}&branchName=${versionName}`);
+  }
+
+  getVersionCommitId(docName: string, versionName: string) {
+    return http.get<string>(`docs/${docName}/versions/${versionName}/gitsha`);
   }
 
   addTextFile(docName: string, versionName: string, filePath: string, content: string) {

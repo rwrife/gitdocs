@@ -117,6 +117,26 @@
       return Ok(_gitClient.GetAllBranches(docPath));
     }
 
+    [HttpGet("{DocName}/versions/{DocVersion}/gitsha")]
+    public IActionResult GetVersionSha(string DocName, string DocVersion)
+    {
+      string basePath = Directory.GetCurrentDirectory();
+
+      string reposPath = Path.Combine(basePath, "repos");
+      if (!Directory.Exists(reposPath))
+      {
+        return NotFound(new { message = "Repos path not found" });
+      }
+
+      string docPath = Path.Combine(reposPath, DocName);
+      if (!Directory.Exists(docPath))
+      {
+        return NotFound(new { message = "Doc repo path not found" });
+      }
+
+      return Ok(_gitClient.GetLatestCommitId(docPath, DocVersion));
+    }
+
     private string GenerateTitle(string name, bool removeExtension = true)
     {
       // Remove the file extension for files

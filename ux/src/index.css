@@ -31,11 +31,6 @@ body {
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -94,4 +89,68 @@ button:focus-visible {
   width: 40px;
   margin: 0;
   padding: 0;
+}
+
+.askasish {
+  position: absolute;
+  right: 50px;
+  bottom: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.askasish textarea {
+  border: none;
+  background-color: white;
+  width: 90%;
+  margin: 5% auto;
+  border-radius: 5px;
+  padding: 5px;
+  color: black;
+  display: none;
+}
+
+.askasish.expanded {
+  height: 300px;
+  border: 1px solid #646cff;
+  background-color: #6063a3;
+  border-radius: 5px;
+}
+
+.askasish.expanded * {
+  display: block;
+}
+
+.askasish>.chatbutton {
+  border-radius: 5px;
+  padding: 5px 10px;
+  display: flex;
+  flex-direction: row;
+  place-items: center;
+  gap: 5px;
+}
+
+.askasish>.chatbutton svg {
+  width: 30px;
+  height: 30px;
+}
+
+.askasish>.chatbutton .title {
+  display: none;
+}
+
+.askasish>.chatbutton:hover {
+  background-color: #646cff;
+}
+
+.askasish>.chatbutton.expanded {
+  border-radius: 5px 5px 0px 0px;
+  background-color: #646cff;
+  transition: width 1.5s ease;
+  width: 300px
+}
+
+.askasish>.chatbutton.expanded .title {
+  display: block;
 }

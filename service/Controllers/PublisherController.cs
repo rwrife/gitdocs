@@ -50,7 +50,7 @@
     }
 
     [HttpPost]
-    public ActionResult CreateManagedRepo(string repoName, string description, string title, string tags)
+    public ActionResult CreateManagedRepo(string repoName, string title, string description = "", string tags = "")
     {
       var reposPath = _gitClient.VerifyReposFolder();
 

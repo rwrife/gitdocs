@@ -8,6 +8,8 @@ import { generateTitle } from '../utils';
 
 import { IoAddSharp } from "react-icons/io5";
 import GitRepo from '../gitRepo';
+import { SiAzuredevops } from 'react-icons/si';
+import { VscAzureDevops } from 'react-icons/vsc';
 
 function App() {
   const [docs, setDocs] = useState<GitRepo[]>([]);
@@ -91,6 +93,9 @@ function App() {
           setShowModal(true);
           loadDocs();
         }} className="addproject-button"><IoAddSharp />New Project</button>
+        <button onClick={() => {
+
+        }} className='importdevops-button'><VscAzureDevops />Import Repo</button>
       </div >
       {showModal && <NewProject closeModal={() => setShowModal(false)} />
       }

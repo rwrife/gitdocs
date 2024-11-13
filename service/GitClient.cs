@@ -27,6 +27,21 @@ namespace GitDocs
       return reposPath;
     }
 
+    public string GetLatestCommitId(string repoPath, string branchName)
+    {
+      using (var repo = new Repository(repoPath))
+      {
+        var branch = repo.Branches[branchName];
+
+        if (branch == null || branch.Tip == null)
+        {
+          throw new ArgumentException($"Branch '{branchName}' does not exist or has no commits.");
+        }
+
+        return branch.Tip.Sha;
+      }
+    }
+
     public void GitInit(string path)
     {
       Repository.Init(path);  // Initialize repository using LibGit2Sharp
