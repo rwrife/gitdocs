@@ -38,8 +38,16 @@
       using (var repo = new Repository(docPath))
       {
         // Find the branch by name without switching the active branch
-        Branch branch = repo.Branches[DocVersion];
-        if (branch == null)
+        Branch branch;
+        try
+        {
+          branch = repo.Branches[DocVersion];
+          if (branch == null)
+          {
+            return NotFound(new { message = $"Branch '{DocVersion}' not found." });
+          }
+        } 
+        catch
         {
           return NotFound(new { message = $"Branch '{DocVersion}' not found." });
         }

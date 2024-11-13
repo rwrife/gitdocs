@@ -19,6 +19,10 @@ import { gitdochost } from '../http-common';
 import { NewVersion } from './NewVersion';
 import { AddFile } from './AddFile';
 import { generateTitle } from '../utils';
+import { FaPencilAlt } from "react-icons/fa";
+import { LuSave } from "react-icons/lu";
+import { MdOutlineCancel } from "react-icons/md";
+import { IoArrowBackSharp } from "react-icons/io5";
 
 function Doc(props: any) {
   const { docName, '*': filePath } = useParams();
@@ -29,6 +33,7 @@ function Doc(props: any) {
   const location = useLocation();
   const [showVersion, setShowVersion] = useState<boolean>(false);
   const [showAddFile, setShowAddFile] = useState<boolean>(false);
+  const [editDoc, setEditDoc] = useState<boolean>(false);
 
   const loadVersions = () => {
     if (docName) {
@@ -63,14 +68,16 @@ function Doc(props: any) {
     }
   }
 
+  const loadDoc = () => {
+    GitDocsService.getContent(docName, filePath, version).then((response) => {
+      setMarkdown(response.data);
+    }).catch((e) => { setMarkdown("Error loading document, may not exist in branch."); });
+  }
+
   useEffect(() => {
     if (filePath && docName && version) {
-      console.log('loading content', docName, filePath, version);
-
-      GitDocsService.getContent(docName, filePath, version).then((response) => {
-        setMarkdown(response.data);
-      }).catch((e) => { setMarkdown("Error loading document, may not exist in branch."); });
-
+      setEditDoc(false);
+      loadDoc();
     } else {
       setMarkdown("Click on a document to the left to view its contents");
     }
@@ -132,7 +139,7 @@ function Doc(props: any) {
     <><div className={styles.doctitle}>{generateTitle(docName, false)}</div>
       <div className={styles.container}>
         <div className={styles.tocContainer}>
-          <Link to="/">Back to Docs</Link>
+          <Link to="/"><IoArrowBackSharp /> Back to Docs</Link>
           <select value={version} defaultValue={version} name="version" id="version" onChange={(e) => setVersion(e.target.value)} className={styles.versionList}>
             {
               versions.map((v) => {
@@ -159,32 +166,45 @@ function Doc(props: any) {
           {version != "master" && <button onClick={() => document.getElementById("fileInput").click()}>Upload File</button>}
         </div>
         <div className={styles.contentContainer}>
-          <Markdown
-            components={{
-              a: (props) => {
-                if (isRouteToMd(props.href)) {
-                  return (<Link to={customEncodeURIComponent(
-                    getContentUrl(filePath, props.href, false))}>{props?.children}</Link>);
-                } else {
-                  const routeExt = getRouteExtension(props.href);
+          {!editDoc && <>
+            {version != "master" && <div className={styles.editControls}>
+              {filePath && <button title='Edit' onClick={() => setEditDoc(true)}><FaPencilAlt /></button>}
+            </div>}
+            <Markdown
+              components={{
+                a: (props) => {
+                  if (isRouteToMd(props.href)) {
+                    return (<Link to={customEncodeURIComponent(
+                      getContentUrl(filePath, props.href, false))}>{props?.children}</Link>);
+                  } else {
+                    const routeExt = getRouteExtension(props.href);
 
-                  // achor to folder, assume index.md
-                  if (!routeExt && !isExternalLink(props.href)) {
-                    const splitRoute = props.href?.split('/') ?? ['/'];
-                    splitRoute.push('index.md');
+                    // achor to folder, assume index.md
+                    if (!routeExt && !isExternalLink(props.href)) {
+                      const splitRoute = props.href?.split('/') ?? ['/'];
+                      splitRoute.push('index.md');
 
-                    return (<Link to={encodeRoute(
-                      getContentUrl(filePath, splitRoute.join('/'), false))}>{props?.children}</Link>);
+                      return (<Link to={encodeRoute(
+                        getContentUrl(filePath, splitRoute.join('/'), false))}>{props?.children}</Link>);
+                    }
+
+                    // anchor to external resource
+                    return (<a target="_blank" rel="noopener noreferrer"
+                      href={getContentUrl(filePath, props.href, true)}>{props?.children}</a>);
                   }
+                },
+                img: (props) => (<img alt={`${props.alt}`} src={getContentUrl(filePath, props.src, true)} />)
+              }}
+            >{markdown}</Markdown></>}
 
-                  // anchor to external resource
-                  return (<a target="_blank" rel="noopener noreferrer"
-                    href={getContentUrl(filePath, props.href, true)}>{props?.children}</a>);
-                }
-              },
-              img: (props) => (<img alt={`${props.alt}`} src={getContentUrl(filePath, props.src, true)} />)
-            }}
-          >{markdown}</Markdown>
+          {editDoc && <>
+            <div className={styles.editControls}>
+              <input className={styles.inputBox} value={filePath} onChange={(e) => { }} />
+              <button title='Save'><LuSave /></button>
+              <button title='Cancel' onClick={() => { setEditDoc(false); loadDoc(); }}><MdOutlineCancel /></button>
+            </div>
+            <textarea className={styles.editor} value={markdown} onChange={(e) => setMarkdown(e.target.value)} />
+          </>}
         </div>
         {showVersion && <NewVersion docName={docName} closeModal={(newver) => {
           setShowVersion(false);
@@ -195,7 +215,7 @@ function Doc(props: any) {
           setShowAddFile(false);
           loadToc();
         }} />}
-      </div>
+      </div >
 
     </>
   )

@@ -51,12 +51,17 @@
   font-size: 1.5em;
 }
 
+.doc-card-title a {
+  color: white;
+}
+
 .doc-card-desc {
   font-size: 1em;
   flex: 1;
   flex-grow: 1;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: rgb(161, 161, 161)
 }
 
 .doc-card-tags {
