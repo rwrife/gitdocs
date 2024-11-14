@@ -2,16 +2,27 @@ import axios from 'axios';
 import http, { gitdochost } from './http-common';
 import TocItem from './tocItem';
 import GitRepo from './gitRepo';
+import SearchResult from './searchResult';
 
 class GitDocsService {
   getAllDocumenets() {
     return http.get<GitRepo[]>('/publisher');
   }
 
+  search(query: string) {
+    return http.get<SearchResult[]>(`/search?q=${query}`);
+  }
+
   saveProject(projectName: string, projectDesc: string, projectTags: string) {
     const repoName = projectName.replace(/\s/g, '-').toLowerCase();
     projectTags = projectTags.split(",").map(tag => tag.trim()).join(",").replace(/\s/g, '-').toLowerCase();
     return http.post(`/publisher?repoName=${repoName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}`);
+  }
+
+  importRepo(projectName: string, projectDesc: string, projectTags: string, repoUrl: string, repoBranch: string, repoFolder: string) {
+    const repoName = projectName.replace(/\s/g, '-').toLowerCase();
+    projectTags = projectTags.split(",").map(tag => tag.trim()).join(",").replace(/\s/g, '-').toLowerCase();
+    return http.post(`/publisher/import?repoName=${repoName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}&repoUrl=${repoUrl}&branchName=${repoBranch}&folder=${repoFolder}`);
   }
 
   getDocToc(docName: string, path: string, docVersion: string = "master", showHidden: boolean = false) {

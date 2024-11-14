@@ -23,3 +23,51 @@
   width: 100%;
   outline-width: 0;
 }
+
+.searchResults {
+  display: block;
+}
+
+.searchPage {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center;
+  gap: 20px;
+}
+
+.searchResults {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.searchQuery {
+  font-size: 1.9em;
+  font-weight: 500;
+}
+
+.searchResults .result {
+  border: solid 1px transparent;
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.searchResults .result:hover {
+  border: solid 1px #646cff;
+}
+
+.searchResults .result .preview {
+  font-size: 0.9em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.searchResults .result .footer {
+  font-size: 0.7em;
+  color: rgba(255, 255, 255, 0.3);
+}

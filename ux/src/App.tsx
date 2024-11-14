@@ -8,10 +8,12 @@ import { generateTitle } from '../utils';
 import { IoAddSharp } from "react-icons/io5";
 import GitRepo from '../gitRepo';
 import { VscAzureDevops } from 'react-icons/vsc';
+import { ImportRepo } from './ImportRepo';
 
 function App() {
   const [docs, setDocs] = useState<GitRepo[]>([]);
-  const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const navigate = useNavigate();
 
   const loadDocs = () => {
@@ -92,12 +94,12 @@ function App() {
           loadDocs();
         }} className="addproject-button"><IoAddSharp />New Project</button>
         <button onClick={() => {
-
+          setShowImportModal(true);
+          loadDocs();
         }} className='importdevops-button'><VscAzureDevops />Import Repo</button>
       </div >
-      {showModal && <NewProject closeModal={() => setShowModal(false)} />
-      }
-
+      {showModal && <NewProject closeModal={() => setShowModal(false)} />}
+      {showImportModal && <ImportRepo closeModal={() => setShowImportModal(false)} />}
     </>
   )
 }

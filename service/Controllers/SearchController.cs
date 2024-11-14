@@ -45,8 +45,10 @@
 
           results.Add(new SearchResult()
           {
+            Title = Path.GetFileNameWithoutExtension(doc.Get("filepath")),
+            RepoName = doc.Get("reponame"),
             FilePath = doc.Get("filepath"),
-            Content = doc.Get("content").Substring(0, doc.Get("content").Length > 100 ? 100 : doc.Get("content").Length)
+            Content = doc.Get("content").Substring(0, doc.Get("content").Length > 500 ? 500 : doc.Get("content").Length)
           });
         }
 
@@ -55,46 +57,3 @@
     }
   }
 }
-
-/*
-
-class Program
-{
-    static void Main()
-    {
-        string indexPath = @"path\to\your\index"; // Set the path to your local index
-        string searchTerm = "data";               // The term to search for
-
-        // Open the directory containing the index
-        FSDirectory directory = FSDirectory.Open(indexPath);
-        
-        // Instantiate the searcher
-        using (IndexSearcher searcher = new IndexSearcher(directory, readOnly: true))
-        {
-            // Define the analyzer and parser
-            var analyzer = new StandardAnalyzer(LuceneVersion.LUCENE_30);
-            var parser = new QueryParser(LuceneVersion.LUCENE_30, "content", analyzer);
-
-            // Parse the query
-            Query query = parser.Parse(searchTerm);
-
-            // Execute the search
-            TopDocs topDocs = searcher.Search(query, 10); // Fetch top 10 results
-            Console.WriteLine($"Found {topDocs.TotalHits} hits.");
-
-            // Display results
-            foreach (ScoreDoc scoreDoc in topDocs.ScoreDocs)
-            {
-                // Retrieve the document
-                var doc = searcher.Doc(scoreDoc.Doc);
-                
-                // Output fields you are interested in
-                Console.WriteLine("Document ID: " + scoreDoc.Doc);
-                Console.WriteLine("Content: " + doc.Get("content")); // Adjust field names as needed
-                Console.WriteLine("Score: " + scoreDoc.Score);
-                Console.WriteLine();
-            }
-        }
-    }
-}
-*/
