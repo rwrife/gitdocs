@@ -5,3 +5,6 @@ Properties
 .config
 .vs
 node_modules
+index/
+.vscode/*
+.github

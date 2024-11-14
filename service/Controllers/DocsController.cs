@@ -7,7 +7,7 @@
   using LibGit2Sharp;
 
   [ApiController]
-  [Route("[controller]")]
+  [Route("api/[controller]")]
   [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
   public class DocsController : Controller
   {

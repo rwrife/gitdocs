@@ -1,0 +1,25 @@
+.searchBox {
+  width: 700px;
+  background-color: #1a1a1a;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 100%;
+}
+
+.searchBox svg {
+  height: 25px;
+  padding: 0 10px;
+}
+
+.searchBox input {
+  border: none;
+  font-size: 0.9em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  margin: 0;
+  width: 100%;
+  outline-width: 0;
+}

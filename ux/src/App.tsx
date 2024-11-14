@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react'
-import './App.css'
+import './css/app.css'
 
 import GitDocsService from "../gitdocs.service";
 import { NewProject } from './NewProject';
 import { Link, useNavigate } from 'react-router-dom';
 import { generateTitle } from '../utils';
-
 import { IoAddSharp } from "react-icons/io5";
 import GitRepo from '../gitRepo';
-import { SiAzuredevops } from 'react-icons/si';
 import { VscAzureDevops } from 'react-icons/vsc';
 
 function App() {

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import './App.css'
+import './css/app.css'
 import GitDocsService from "../gitdocs.service";
 import { useLocation, useNavigate, useParams } from 'react-router';
-import styles from "./doc.module.css";
+import styles from "./css/doc.module.css";
 import { Link } from 'react-router-dom';
 import { FaFolder, FaFile, FaFileImage, FaCodeBranch, FaPlus } from "react-icons/fa";
 import TocItem from '../tocItem';

@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./modal.module.css";
+import styles from "./css/modal.module.css";
 import GitDocsService from "../gitdocs.service";
 
 export const NewVersion = ({ docName, closeModal }) => {
