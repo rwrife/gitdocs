@@ -3,7 +3,7 @@ import './css/app.css'
 import styles from "./css/search.module.css";
 import { useLocation, useNavigate } from 'react-router-dom';
 import GitDocsService from "../gitdocs.service";
-import SearchResult from '../searchResult';
+import { SearchResult } from './types.ts';
 import { GrDocumentText } from 'react-icons/gr';
 import { generateTitle } from '../utils';
 

@@ -5,10 +5,9 @@ import { useLocation, useNavigate, useParams } from 'react-router';
 import styles from "./css/doc.module.css";
 import { Link } from 'react-router-dom';
 import { FaFolder, FaFile, FaFileImage, FaCodeBranch, FaPlus } from "react-icons/fa";
-import TocItem from '../tocItem';
+import { TocItem } from './types';
 import Markdown from 'https://esm.sh/react-markdown@9'
 import {
-  getRouteDiff,
   isRouteToMd,
   getRouteExtension,
   isExternalLink,
@@ -17,7 +16,6 @@ import {
 } from './routeHelper';
 import { gitdochost } from '../http-common';
 import { NewVersion } from './NewVersion';
-import { AddFile } from './AddFile';
 import { generateTitle } from '../utils';
 import { FaPencilAlt, FaEye, FaEyeSlash, FaFileUpload } from "react-icons/fa";
 import { LuSave } from "react-icons/lu";
@@ -138,16 +136,28 @@ function Doc(props: any) {
     if (isExternalLink(contentPath)) {
       return contentPath;
     }
-    //https://localhost:7089/content/test/screen.png?DocVersion=master
 
     if (contentPath.startsWith("/")) {
-      return `${gitdochost}/content/${docName}${contentPath}?DocVersion=${version}`;
+      return `${gitdochost}/api/content/${docName}${contentPath}?DocVersion=${version}`;
     }
 
     basePath = basePath.split("/").slice(0, -1).join("/");
     console.log(basePath, contentPath);
 
-    const resolvedPath = new URL(contentPath, `${gitdochost}/content/${docName}/${basePath}/`).pathname;
+    if (contentPath.startsWith("~/")) {
+      basePath = "";
+      contentPath = contentPath.slice(2);
+      console.log(contentPath);
+    }
+    if (contentPath.startsWith("./")) {
+      contentPath = contentPath.slice(2);
+    }
+    if (contentPath.startsWith("/")) {
+      basePath = "";
+      contentPath = contentPath.slice(1);
+    }
+
+    const resolvedPath = new URL(contentPath, `${gitdochost}/api/content/${docName}/${basePath ? 'basePath' + '/' : ''}`).pathname;
     console.log(resolvedPath);
     const contentUrl = `${gitdochost}${resolvedPath}?DocVersion=${version}`;
     return contentUrl;

@@ -1,12 +1,13 @@
 ﻿namespace GitDocs.Controllers
 {
-  using Microsoft.AspNetCore.Mvc;
-  using Microsoft.Identity.Web.Resource;
-  using System.IO;
-  using System.Web;
-  using LibGit2Sharp;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Identity.Web.Resource;
+    using System.IO;
+    using System.Web;
+    using LibGit2Sharp;
+    using service.Models;
 
-  [ApiController]
+    [ApiController]
   [Route("api/[controller]")]
   [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
   public class DocsController : Controller
@@ -16,9 +17,7 @@
     [HttpGet("{DocName}/toc/{*FilePath}")]
     public IActionResult Index(string DocName, string FilePath = "/", string DocVersion = "master", bool ShowHidden = false)
     {
-      string basePath = Directory.GetCurrentDirectory();
-
-      string reposPath = Path.Combine(basePath, "repos");
+      string reposPath = _gitClient.GetReposFolder();
       if (!Directory.Exists(reposPath))
       {
         return NotFound(new { message = "Repos path not found" });
@@ -100,9 +99,7 @@
     [HttpGet("{DocName}/versions")]
     public IActionResult GetVersions(string DocName)
     {
-      string basePath = Directory.GetCurrentDirectory();
-
-      string reposPath = Path.Combine(basePath, "repos");
+      string reposPath = _gitClient.GetReposFolder();
       if (!Directory.Exists(reposPath))
       {
         return NotFound(new { message = "Repos path not found" });
@@ -120,9 +117,7 @@
     [HttpGet("{DocName}/versions/{DocVersion}/gitsha")]
     public IActionResult GetVersionSha(string DocName, string DocVersion)
     {
-      string basePath = Directory.GetCurrentDirectory();
-
-      string reposPath = Path.Combine(basePath, "repos");
+      string reposPath = _gitClient.GetReposFolder();
       if (!Directory.Exists(reposPath))
       {
         return NotFound(new { message = "Repos path not found" });

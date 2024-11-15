@@ -8,10 +8,6 @@
   padding: 2em;
 }
 
-.read-the-docs {
-  color: #888;
-}
-
 .container {
   display: flex;
   flex-direction: row;
@@ -43,7 +39,7 @@
 }
 
 .doc-card:hover {
-  border: solid 1px #646cff;
+  border: solid 1px orangered;
   cursor: pointer;
 }
 

@@ -6,7 +6,7 @@ import { NewProject } from './NewProject';
 import { Link, useNavigate } from 'react-router-dom';
 import { generateTitle } from '../utils';
 import { IoAddSharp } from "react-icons/io5";
-import GitRepo from '../gitRepo';
+import { GitRepo } from './types';
 import { VscAzureDevops } from 'react-icons/vsc';
 import { ImportRepo } from './ImportRepo';
 

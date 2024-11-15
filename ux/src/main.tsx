@@ -5,7 +5,7 @@ import App from './App.tsx'
 import { BrowserRouter, Link } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import Doc from './Doc.tsx';
-import AskAsish from './AskAsish.tsx';
+import AskAsish from './Ask.tsx';
 import Header from './Header.tsx';
 import SearchResults from './SearchResults.tsx';
 

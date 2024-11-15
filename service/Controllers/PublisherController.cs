@@ -1,13 +1,13 @@
 ﻿namespace GitDocs.Controllers
 {
-  using Microsoft.AspNetCore.Mvc;
-  using Microsoft.Identity.Web.Resource;
-  using System.IO;
-  using GitDocs;
-  using LibGit2Sharp;
-  using System.Linq;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Identity.Web.Resource;
+    using System.IO;
+    using LibGit2Sharp;
+    using System.Linq;
+    using service.Models;
 
-  [ApiController]
+    [ApiController]
   [Route("api/[controller]")]
   [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
   public class PublisherController : Controller

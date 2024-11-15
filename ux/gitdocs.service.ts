@@ -1,28 +1,32 @@
 import axios from 'axios';
 import http, { gitdochost } from './http-common';
 import TocItem from './tocItem';
-import GitRepo from './gitRepo';
-import SearchResult from './searchResult';
+import { GitRepo, SearchResult } from './types';
+import { AskResponse } from './src/typs';
 
 class GitDocsService {
   getAllDocumenets() {
-    return http.get<GitRepo[]>('/publisher');
+    return http.get<GitRepo[]>('publisher');
+  }
+
+  ask(query: string) {
+    return http.post<AskResponse>(`ask?askid=0&q=${query}`);
   }
 
   search(query: string) {
-    return http.get<SearchResult[]>(`/search?q=${query}`);
+    return http.get<SearchResult[]>(`search?q=${query}`);
   }
 
   saveProject(projectName: string, projectDesc: string, projectTags: string) {
     const repoName = projectName.replace(/\s/g, '-').toLowerCase();
     projectTags = projectTags.split(",").map(tag => tag.trim()).join(",").replace(/\s/g, '-').toLowerCase();
-    return http.post(`/publisher?repoName=${repoName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}`);
+    return http.post(`publisher?repoName=${repoName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}`);
   }
 
   importRepo(projectName: string, projectDesc: string, projectTags: string, repoUrl: string, repoBranch: string, repoFolder: string) {
     const repoName = projectName.replace(/\s/g, '-').toLowerCase();
     projectTags = projectTags.split(",").map(tag => tag.trim()).join(",").replace(/\s/g, '-').toLowerCase();
-    return http.post(`/publisher/import?repoName=${repoName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}&repoUrl=${repoUrl}&branchName=${repoBranch}&folder=${repoFolder}`);
+    return http.post(`publisher/import?repoName=${repoName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}&repoUrl=${repoUrl}&branchName=${repoBranch}&folder=${repoFolder}`);
   }
 
   getDocToc(docName: string, path: string, docVersion: string = "master", showHidden: boolean = false) {
@@ -47,7 +51,7 @@ class GitDocsService {
 
   addTextFile(docName: string, versionName: string, filePath: string, content: string) {
     var axclient = axios.create({
-      baseURL: gitdochost
+      baseURL: `${gitdochost}/api/`,
     })
 
     const formData = new FormData();
@@ -61,7 +65,7 @@ class GitDocsService {
   addFile(docName: string, versionName: string, file: any) {
     console.log(docName, versionName, file);
     var axclient = axios.create({
-      baseURL: gitdochost,
+      baseURL: `${gitdochost}/api/`,
       headers: {
         "Content-Type": "multipart/form-data",
       },

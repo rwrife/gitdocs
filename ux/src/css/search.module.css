@@ -59,7 +59,7 @@
 }
 
 .searchResults .result:hover {
-  border: solid 1px #646cff;
+  border: solid 1px orangered;
 }
 
 .searchResults .result .preview {

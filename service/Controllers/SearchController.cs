@@ -1,12 +1,13 @@
 ﻿namespace gdservice.Controllers
 {
-  using Lucene.Net.Analysis.Standard;
-  using Lucene.Net.QueryParsers;
-  using Lucene.Net.Search;
-  using Lucene.Net.Store;
-  using Lucene.Net.Util;
-  using Microsoft.AspNetCore.Mvc;
-  using Microsoft.Identity.Web.Resource;
+    using Lucene.Net.Analysis.Standard;
+    using Lucene.Net.QueryParsers;
+    using Lucene.Net.Search;
+    using Lucene.Net.Store;
+    using Lucene.Net.Util;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Identity.Web.Resource;
+    using service.Models;
 
   [ApiController]
   [Route("api/[controller]")]
@@ -17,7 +18,7 @@
     string luceneIndexPath = Path.GetFullPath("../index", currentDirectory);
 
     [HttpGet]
-    public IActionResult Search(string q)
+    public IActionResult Search(string Q)
     {
       FSDirectory directory = FSDirectory.Open(luceneIndexPath);
 
@@ -29,7 +30,7 @@
         var parser = new QueryParser(Version.LUCENE_30, "content", analyzer);
 
         // Parse the query
-        Query query = parser.Parse(q);
+        Query query = parser.Parse(Q);
 
         // Execute the search
         TopDocs topDocs = searcher.Search(query, 10); 
