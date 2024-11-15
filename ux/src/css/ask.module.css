@@ -12,14 +12,14 @@
 }
 
 .askAsish textarea {
-  border: none;
-  background-color: white;
   width: 90%;
   margin: 5% auto;
   border-radius: 5px;
   padding: 5px;
-  color: black;
   display: none;
+  border: solid 1px orangered;
+  background: black;
+  color: white;
 }
 
 .askAsish .responses {

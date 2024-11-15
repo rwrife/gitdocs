@@ -58,6 +58,10 @@
   max-width: 200px;
 }
 
+.versionList:hover {
+  border-color: orangered;
+}
+
 .versionControls {
   display: flex;
   flex-direction: row;

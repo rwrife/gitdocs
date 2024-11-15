@@ -161,7 +161,10 @@
         return NotFound();
       }
 
-      _gitClient.MergeChangesToMaster(repoPath, branchName);
+      try
+      {
+        _gitClient.MergeBranchIntoMaster(repoPath, branchName);
+      } catch { }
 
       return Ok();
     }
