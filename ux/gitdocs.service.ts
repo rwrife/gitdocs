@@ -9,8 +9,8 @@ class GitDocsService {
     return http.get<GitRepo[]>('publisher');
   }
 
-  ask(query: string) {
-    return http.post<AskResponse>(`ask?askid=0&q=${query}`);
+  ask(query: string, askid: string) {
+    return http.post<AskResponse>(`ask?askid=${askid}&q=${query}`);
   }
 
   search(query: string) {

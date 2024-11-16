@@ -1,7 +1,8 @@
 export interface AskResponse {
-  askId: String;
-  question: String;
-  answer: String;
+  askId: string;
+  question: string;
+  answer: string;
+  loading: boolean;
 }
 
 export interface GitRepo {

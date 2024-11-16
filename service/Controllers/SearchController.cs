@@ -14,12 +14,12 @@
   [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
   public class SearchController : Controller
   {
-    static string currentDirectory = System.IO.Directory.GetCurrentDirectory();
-    string luceneIndexPath = Path.GetFullPath("../index", currentDirectory);
 
-    [HttpGet]
-    public IActionResult Search(string Q)
+
+    public static List<SearchResult> SearchIndex(string q)
     {
+      string currentDirectory = System.IO.Directory.GetCurrentDirectory();
+      string luceneIndexPath = Path.GetFullPath("../index", currentDirectory);
       FSDirectory directory = FSDirectory.Open(luceneIndexPath);
 
       // Instantiate the searcher
@@ -30,11 +30,10 @@
         var parser = new QueryParser(Version.LUCENE_30, "content", analyzer);
 
         // Parse the query
-        Query query = parser.Parse(Q);
+        Query query = parser.Parse(q);
 
         // Execute the search
-        TopDocs topDocs = searcher.Search(query, 10); 
-        Console.WriteLine($"Found {topDocs.TotalHits} hits.");
+        TopDocs topDocs = searcher.Search(query, 10);
 
         var results = new List<SearchResult>();
 
@@ -53,8 +52,14 @@
           });
         }
 
-        return Ok(results);
+        return results;
       }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> SearchForDocs(string Q)
+    {
+        return Ok(SearchIndex(Q));
     }
   }
 }
