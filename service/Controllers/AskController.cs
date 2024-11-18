@@ -25,8 +25,8 @@
 
       var parameters = new ModelParams(Path.Combine(this.modelsPath, "phi-2.Q4_K_M.gguf"))
       {
-        ContextSize = 2048,
-        GpuLayerCount = 50,
+        ContextSize = 4096,
+        GpuLayerCount = 100,
         MainGpu = 0
       };
 

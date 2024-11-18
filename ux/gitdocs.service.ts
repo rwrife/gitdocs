@@ -26,7 +26,7 @@ class GitDocsService {
   importRepo(projectName: string, projectDesc: string, projectTags: string, repoUrl: string, repoBranch: string, repoFolder: string) {
     const repoName = projectName.replace(/\s/g, '-').toLowerCase();
     projectTags = projectTags.split(",").map(tag => tag.trim()).join(",").replace(/\s/g, '-').toLowerCase();
-    return http.post(`publisher/import?repoName=${repoName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}&repoUrl=${encodeURIComponent(repoUrl)}&branchName=${repoBranch}&folder=${encodeURIComponent(repoFolder)}`);
+    return http.post(`publisher/import?repoName=${repoName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}&repoUrl=${encodeURIComponent(repoUrl)}&branchName=${repoBranch}&defaultFolder=${encodeURIComponent(repoFolder)}`);
   }
 
   getDocToc(docName: string, path: string, docVersion: string = "master", showHidden: boolean = false) {
@@ -35,6 +35,10 @@ class GitDocsService {
 
   getContent(docName: string, path: string, docVersion: string = "master") {
     return http.get<string>(`content/${docName}/${path}?DocVersion=${docVersion}`);
+  }
+
+  getDocCurrentVersion(docName: string) {
+    return http.get<string>(`docs/${docName}/defaultbranch`);
   }
 
   getDocVersions(docName: string) {
@@ -46,7 +50,7 @@ class GitDocsService {
   }
 
   getVersionCommitId(docName: string, versionName: string) {
-    return http.get<string>(`docs/${docName}/versions/${versionName}/gitsha`);
+    return http.get<string>(`docs/${docName}/versions/${encodeURIComponent(versionName)}/gitsha`);
   }
 
   addTextFile(docName: string, versionName: string, filePath: string, content: string) {
@@ -60,6 +64,10 @@ class GitDocsService {
     formData.append("file", textAsFile, filePath);
 
     return axclient.post(`publisher/file/${filePath}?repoName=${docName}&branchName=${versionName}`, formData);
+  }
+
+  getMetadata(docName: string, metadataKey: string) {
+    return http.get(`docs/${docName}/metadata/${metadataKey}`);
   }
 
   addFile(docName: string, versionName: string, file: any) {

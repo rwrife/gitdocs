@@ -1,14 +1,14 @@
 ﻿namespace GitDocs.Controllers
 {
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Identity.Web.Resource;
-    using System.IO;
-    using LibGit2Sharp;
-    using System.Linq;
-    using service.Models;
+  using Microsoft.AspNetCore.Mvc;
+  using Microsoft.Identity.Web.Resource;
+  using System.IO;
+  using LibGit2Sharp;
+  using System.Linq;
+  using service.Models;
   using System.Diagnostics;
 
-    [ApiController]
+  [ApiController]
   [Route("api/[controller]")]
   [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
   public class PublisherController : Controller
@@ -30,20 +30,20 @@
 
         if (Directory.Exists(gitPath))
         {
-          using (var repo = new Repository(folder))
-          {
-            var description = repo.Config.FirstOrDefault(c => c.Key == "repository.description")?.Value?.ToString() ?? "";
-            var title = repo.Config.FirstOrDefault(c => c.Key == "repository.title")?.Value?.ToString() ?? Path.GetFileName(folder);
-            var tags = repo.Config.FirstOrDefault(c => c.Key == "repository.tags")?.Value?.ToString() ?? "";
+          var description = _gitClient.GetMetadataValue(folder, "description");
+          var title = _gitClient.GetMetadataValue(folder, "title");
+          var tags = _gitClient.GetMetadataValue(folder, "tags");
+          var docRoot = _gitClient.GetMetadataValue(folder, "docroot");
 
-            repoDetails.Add(new
-            {
-              name = Path.GetFileName(folder),
-              description,
-              title,
-              tags
-            });
-          }
+          repoDetails.Add(new
+          {
+            name = Path.GetFileName(folder),
+            description,
+            title,
+            tags,
+            docRoot
+          });
+
         }
       }
 
@@ -104,7 +104,7 @@
         {
           Checkout = true,
           IsBare = false,
-          RecurseSubmodules = true,          
+          RecurseSubmodules = true,
         };
 
         var credentials = GetGitCredentials(repoUrl);
@@ -117,29 +117,25 @@
             Password = credentials.Password
           };
         };
-        
+
         Repository.Clone(repoUrl, repoPath, options);
 
-        using (var repo = new Repository(repoPath))
+        _gitClient.SetMetadataValue(repoPath, "description", description);
+        _gitClient.SetMetadataValue(repoPath, "title", string.IsNullOrEmpty(title) ? repoName : title);
+        _gitClient.SetMetadataValue(repoPath, "tags", tags);
+        _gitClient.SetMetadataValue(repoPath, "docroot", defaultFolder);
+
+        Task.Run(() =>
         {
-          repo.Config.Set("repository.description", description);
-
-          // Use the provided title or default to the repo name if no title is given
-          repo.Config.Set("repository.title", string.IsNullOrEmpty(title) ? repoName : title);
-          repo.Config.Set("repository.tags", tags);
-          repo.Config.Set("repository.docroot", defaultFolder);
-
-          Task.Run(() =>
+          using (var repo = new Repository(repoPath))
           {
-            using (var repo = new Repository(repoPath))
-            {
-              var remote = repo.Network.Remotes["origin"];
-              Commands.Fetch(repo, remote.Name, remote.FetchRefSpecs.Select(x => x.Specification), options.FetchOptions, null);            
-              Commands.Checkout(repo, branchName);
-            }
-          });
+            var remote = repo.Network.Remotes["origin"];
+            Commands.Fetch(repo, remote.Name, remote.FetchRefSpecs.Select(x => x.Specification), options.FetchOptions, null);
+            Commands.Checkout(repo, branchName);
+          }
+        });
 
-        }
+
 
         return Ok(new { Message = "Repository successfully cloned", RepositoryPath = repoPath });
       }
@@ -234,7 +230,7 @@
     }
 
     [HttpPost("file/{*FilePath}")]
-      public ActionResult UpdateFileInBranch(string repoName, string branchName, string FilePath, IFormFile file)
+    public ActionResult UpdateFileInBranch(string repoName, string branchName, string FilePath, IFormFile file)
     {
       if (file == null || file.Length == 0)
       {
@@ -258,7 +254,8 @@
         try
         {
           _gitClient.UpdateFile(repoPath, branchName, FilePath, fileData);
-        } catch (EmptyCommitException e)
+        }
+        catch (EmptyCommitException e)
         {
           return new EmptyResult();
         }
@@ -283,7 +280,8 @@
       try
       {
         _gitClient.MergeBranchIntoMaster(repoPath, branchName);
-      } catch { }
+      }
+      catch { }
 
       return Ok();
     }

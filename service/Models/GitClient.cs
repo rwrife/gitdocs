@@ -5,6 +5,9 @@ using LibGit2Sharp;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using Lucene.Net.Search;
+using Microsoft.AspNetCore.Http.HttpResults;
+using static LLama.Native.NativeLibraryConfig;
 
 namespace service.Models
 {
@@ -32,6 +35,22 @@ namespace service.Models
       }
 
       return reposPath;
+    }
+
+    public string GetMetadataValue(string repoPath, string metadataKey)
+    {
+      using (var repo = new Repository(repoPath))
+      {
+        return repo.Config.FirstOrDefault(c => c.Key == $"repository.{metadataKey.ToLower()}")?.Value?.ToString() ?? "";
+      }
+    }
+
+    public void SetMetadataValue(string repoPath, string metadataKey, string value)
+    {
+      using (var repo = new Repository(repoPath))
+      {
+        repo.Config.Set("repository.{metadataKey.ToLower()}", value);
+      }
     }
 
     public string GetLatestCommitId(string repoPath, string branchName)
@@ -73,6 +92,16 @@ namespace service.Models
       using (var repo = new Repository(repoPath))
       {
         return repo.Branches[branchName] != null;
+      }
+    }
+
+    public string GetCurrentBranch(string repoPath)
+    {
+      using (var repo = new Repository(repoPath))
+      {
+        Branch currentBranch = repo.Head;
+
+        return currentBranch.FriendlyName;
       }
     }
 

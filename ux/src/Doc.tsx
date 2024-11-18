@@ -43,6 +43,7 @@ function Doc(props: any) {
   const [editDocContent, setEditDocContent] = useState<string>("");
   const [showHiddenFiles, setShowHiddenFiles] = useState<boolean>(false);
   const [commitId, setCommitId] = useState<string>("");
+  const [rootFolder, setRootFolder] = useState<string | undefined>(undefined);
 
   const navigate = useNavigate();
 
@@ -55,7 +56,12 @@ function Doc(props: any) {
   };
 
   useEffect(() => {
-    loadVersions();
+    if (docName) {
+      loadVersions();
+      GitDocsService.getDocCurrentVersion(docName).then((response) => {
+        setVersion(response?.data);
+      });
+    }
   }, [docName]);
 
   const loadCommitId = () => {
@@ -67,18 +73,26 @@ function Doc(props: any) {
   }
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    if (docName) {
+      const timer = setInterval(() => {
+        loadCommitId();
+      }, 1000);
       loadCommitId();
-    }, 1000);
-    loadCommitId();
-    return () => {
-      clearInterval(timer);
+      GitDocsService.getMetadata(docName, "docroot").then((response) => {
+        setRootFolder(response.data === "/" ? "" : response.data);
+      }).catch((e) => { setRootFolder(""); });
+
+
+      return () => {
+        clearInterval(timer);
+      }
     }
   }, [docName, version]);
 
   const loadToc = () => {
+    console.log(rootFolder);
     if (docName && version) {
-      GitDocsService.getDocToc(docName, "", version, showHiddenFiles).then((response) => {
+      GitDocsService.getDocToc(docName, rootFolder ?? "", version, showHiddenFiles).then((response) => {
         setToc(response.data);
       });
     }
@@ -94,10 +108,10 @@ function Doc(props: any) {
   };
 
   useEffect(() => {
-    if (commitId) {
+    if (commitId && rootFolder !== undefined) {
       loadToc();
     }
-  }, [commitId, showHiddenFiles]);
+  }, [commitId, showHiddenFiles, rootFolder]);
 
   const loadDoc = () => {
     if (docName && filePath && version) {

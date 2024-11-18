@@ -6,8 +6,10 @@
     using System.Web;
     using LibGit2Sharp;
     using service.Models;
+  using Microsoft.VisualBasic;
+  using System.Text;
 
-    [ApiController]
+  [ApiController]
   [Route("api/[controller]")]
   [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
   public class DocsController : Controller
@@ -95,6 +97,23 @@
       }
     }
 
+    [HttpGet("{DocName}/defaultbranch")]
+    public IActionResult GetDefaultBranch(string DocName)
+    {
+      string reposPath = _gitClient.GetReposFolder();
+      if (!Directory.Exists(reposPath))
+      {
+        return NotFound(new { message = "Repos path not found" });
+      }
+
+      string docPath = Path.Combine(reposPath, DocName);
+      if (!Directory.Exists(docPath))
+      {
+        return NotFound(new { message = "Doc repo path not found" });
+      }
+
+      return Ok(_gitClient.GetCurrentBranch(docPath));
+    }
 
     [HttpGet("{DocName}/versions")]
     public IActionResult GetVersions(string DocName)
@@ -114,9 +133,36 @@
       return Ok(_gitClient.GetAllBranches(docPath));
     }
 
+    [HttpGet("{DocName}/metadata/{MetadataKey}")]
+    public IActionResult GetMetadataValue(string DocName, string MetadataKey)
+    {
+      string reposPath = _gitClient.GetReposFolder();
+      if (!Directory.Exists(reposPath))
+      {
+        return NotFound(new { message = "Repos path not found" });
+      }
+
+      string docPath = Path.Combine(reposPath, DocName);
+      if (!Directory.Exists(docPath))
+      {
+        return NotFound(new { message = "Doc repo path not found" });
+      }
+
+      try
+      {
+        return Ok(_gitClient.GetMetadataValue(docPath, MetadataKey));
+      }
+      catch
+      {
+        return NoContent();
+      }
+    }
+
     [HttpGet("{DocName}/versions/{DocVersion}/gitsha")]
     public IActionResult GetVersionSha(string DocName, string DocVersion)
     {
+      DocVersion = Uri.UnescapeDataString(DocVersion);
+
       string reposPath = _gitClient.GetReposFolder();
       if (!Directory.Exists(reposPath))
       {
