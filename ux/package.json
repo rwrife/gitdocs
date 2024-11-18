@@ -10,13 +10,23 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@microflash/remark-callout-directives": "^4.3.2",
     "axios": "^1.7.7",
     "classnames": "^2.5.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.3.0",
     "react-markdown": "^9.0.1",
-    "react-router-dom": "^6.28.0"
+    "react-router-dom": "^6.28.0",
+    "rehype-highlight": "^7.0.1",
+    "rehype-katex": "^7.0.1",
+    "rehype-raw": "^7.0.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.0",
+    "remark-github-admonitions-to-directives": "^2.1.0",
+    "remark-math": "^6.0.0",
+    "remark-mdx-frontmatter": "^5.0.0",
+    "remark-mermaidjs": "^7.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",

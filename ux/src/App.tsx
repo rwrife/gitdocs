@@ -39,14 +39,14 @@ function App() {
     const hash = hashString(text);
 
     // Create RGB values that are constrained to darker shades
-    const red = Math.abs((hash & 0xFF0000) >> 16) % 200;  // Limit max to 160
+    const red = Math.abs((hash & 0xFF0000) >> 16) % 250;  // Limit max to 160
     const green = Math.abs((hash & 0x00FF00) >> 8) % 200;
     const blue = Math.abs(hash & 0x0000FF) % 200;
 
     // Scale the RGB values to ensure a darker shade
-    const darkRed = Math.floor(red * 0.7);
-    const darkGreen = Math.floor(green * 0.7);
-    const darkBlue = Math.floor(blue * 0.7);
+    const darkRed = Math.floor(red * 0.6);
+    const darkGreen = Math.floor(green * 0.8);
+    const darkBlue = Math.floor(blue * 0.6);
 
     return [`rgba(${darkRed}, ${darkGreen}, ${darkBlue}, 0.6)`, `rgb(${darkRed}, ${darkGreen}, ${darkBlue})`];
   };

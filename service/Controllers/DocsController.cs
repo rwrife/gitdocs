@@ -129,7 +129,13 @@
         return NotFound(new { message = "Doc repo path not found" });
       }
 
-      return Ok(_gitClient.GetLatestCommitId(docPath, DocVersion));
+      try
+      {
+        return Ok(_gitClient.GetLatestCommitId(docPath, DocVersion));
+      }  catch
+      {
+        return NoContent();
+      }
     }
 
     private string GenerateTitle(string name, bool removeExtension = true)

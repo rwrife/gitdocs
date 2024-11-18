@@ -25,7 +25,9 @@
 
       var parameters = new ModelParams(Path.Combine(this.modelsPath, "phi-2.Q4_K_M.gguf"))
       {
-        ContextSize = 1024
+        ContextSize = 2048,
+        GpuLayerCount = 50,
+        MainGpu = 0
       };
 
       var model = LLamaWeights.LoadFromFile(parameters);      
@@ -39,7 +41,7 @@
         - Engineering Hub (EngHub) is a web site that provides troubleshooting guides and service documentation for all developers at Microsoft
         - The EngHub portal is available at https://eng.ms and onboarding instructions are at https://eng.ms/onboarding
         - The Engineering Hub Team has office hours Thursdays at 10:35am
-        - Asish has nothing do with the Geneva product or team, that's maintained by some other disfunctional team and Asish cannot help
+        - Asish cannot answer any questions about Geneva, it is a product that is maintained by some other disfunctional team
         - Engineering Hub site uses a hacked up version DocFx version 2.59.3
         """);
     }
@@ -53,7 +55,7 @@
 
       InferenceParams inferenceParams = new InferenceParams()
       {
-        MaxTokens = 1024,
+        MaxTokens = 2048,
         AntiPrompts = new List<string> { "User:" }
       };
 

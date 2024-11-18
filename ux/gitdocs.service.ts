@@ -26,7 +26,7 @@ class GitDocsService {
   importRepo(projectName: string, projectDesc: string, projectTags: string, repoUrl: string, repoBranch: string, repoFolder: string) {
     const repoName = projectName.replace(/\s/g, '-').toLowerCase();
     projectTags = projectTags.split(",").map(tag => tag.trim()).join(",").replace(/\s/g, '-').toLowerCase();
-    return http.post(`publisher/import?repoName=${repoName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}&repoUrl=${repoUrl}&branchName=${repoBranch}&folder=${repoFolder}`);
+    return http.post(`publisher/import?repoName=${repoName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}&repoUrl=${encodeURIComponent(repoUrl)}&branchName=${repoBranch}&folder=${encodeURIComponent(repoFolder)}`);
   }
 
   getDocToc(docName: string, path: string, docVersion: string = "master", showHidden: boolean = false) {

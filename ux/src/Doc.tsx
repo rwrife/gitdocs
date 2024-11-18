@@ -22,6 +22,14 @@ import { LuSave } from "react-icons/lu";
 import { MdOutlineCancel } from "react-icons/md";
 import { IoArrowBackSharp } from "react-icons/io5";
 import { AiOutlineFileMarkdown } from "react-icons/ai";
+import rehypeRaw from 'rehype-raw';
+import remarkFrontmatter from 'remark-frontmatter';
+import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
+import rehypeKatex from 'rehype-katex';
+import remarkMath from 'remark-math';
+import remarkGithubAdmonitionsToDirectives from 'remark-github-admonitions-to-directives';
+import rehypeHighlight from 'rehype-highlight';
+import remarkGfm from 'remark-gfm';
 
 function Doc(props: any) {
   const { docName, '*': filePath } = useParams();
@@ -157,7 +165,7 @@ function Doc(props: any) {
       contentPath = contentPath.slice(1);
     }
 
-    const resolvedPath = new URL(contentPath, `${gitdochost}/api/content/${docName}/${basePath ? 'basePath' + '/' : ''}`).pathname;
+    const resolvedPath = new URL(contentPath, `${gitdochost}/api/content/${docName}/${basePath ? basePath + '/' : ''}`).pathname;
     console.log(resolvedPath);
     const contentUrl = `${gitdochost}${resolvedPath}?DocVersion=${version}`;
     return contentUrl;
@@ -244,6 +252,7 @@ function Doc(props: any) {
           {renderDocToolbar()}
           {!editDoc && <div>
             <Markdown
+              remarkToRehypeOptions={{ allowDangerousHtml: true }}
               components={{
                 a: (props) => {
                   if (isRouteToMd(props.href)) {
@@ -268,6 +277,22 @@ function Doc(props: any) {
                 },
                 img: (props) => (<img alt={`${props.alt}`} src={getContentUrl(filePath, props.src, true)} />)
               }}
+              remarkPlugins={
+                [
+                  remarkGfm,
+                  remarkFrontmatter,
+                  remarkMdxFrontmatter,
+                  remarkMath,
+                  remarkGithubAdmonitionsToDirectives,
+                ] as any
+              }
+              rehypePlugins={
+                [
+                  rehypeRaw,
+                  rehypeKatex,
+                  [rehypeHighlight, { detect: true, }],
+                ] as any
+              }
             >{markdown}</Markdown></div>}
 
           {editDoc && <textarea className={styles.editor} value={editDocContent} onChange={(e) => setEditDocContent(e.target.value)} />}
