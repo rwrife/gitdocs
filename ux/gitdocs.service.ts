@@ -17,16 +17,16 @@ class GitDocsService {
     return http.get<SearchResult[]>(`search?q=${query}`);
   }
 
-  saveProject(projectName: string, projectDesc: string, projectTags: string) {
+  saveProject(projectName: string, projectDesc: string, projectFolder: string, projectTags: string) {
     const repoName = projectName.replace(/\s/g, '-').toLowerCase();
     projectTags = projectTags.split(",").map(tag => tag.trim()).join(",").replace(/\s/g, '-').toLowerCase();
-    return http.post(`publisher?repoName=${repoName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}`);
+    return http.post(`publisher?repoName=${repoName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}&folder=${encodeURIComponent(projectFolder)}`);
   }
 
-  importRepo(projectName: string, projectDesc: string, projectTags: string, repoUrl: string, repoBranch: string, repoFolder: string) {
+  importRepo(projectName: string, projectDesc: string, projectTags: string, repoUrl: string, repoBranch: string, projectFolder: string, repoFolder: string) {
     const repoName = projectName.replace(/\s/g, '-').toLowerCase();
     projectTags = projectTags.split(",").map(tag => tag.trim()).join(",").replace(/\s/g, '-').toLowerCase();
-    return http.post(`publisher/import?repoName=${repoName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}&repoUrl=${encodeURIComponent(repoUrl)}&branchName=${repoBranch}&defaultFolder=${encodeURIComponent(repoFolder)}`);
+    return http.post(`publisher/import?repoName=${repoName}&description=${projectDesc}&title=${projectName}&tags=${projectTags}&repoUrl=${encodeURIComponent(repoUrl)}&branchName=${repoBranch}&defaultFolder=${encodeURIComponent(repoFolder)}&folder=${encodeURIComponent(projectFolder)}`);
   }
 
   getDocToc(docName: string, path: string, docVersion: string = "master", showHidden: boolean = false) {

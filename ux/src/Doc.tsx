@@ -180,7 +180,6 @@ function Doc(props: any) {
     }
 
     const resolvedPath = new URL(contentPath, `${gitdochost}/api/content/${docName}/${basePath ? basePath + '/' : ''}`).pathname;
-    console.log(resolvedPath);
     const contentUrl = `${gitdochost}${resolvedPath}?DocVersion=${version}`;
     return contentUrl;
   }

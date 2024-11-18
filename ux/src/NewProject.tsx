@@ -7,9 +7,10 @@ export const NewProject = ({ closeModal }) => {
   const [projectName, setProjectName] = React.useState<string>("");
   const [projectDesc, setProjectDesc] = React.useState<string>("");
   const [projectTags, setProjectTags] = React.useState<string>("");
+  const [projectFolder, setProjectFolder] = React.useState<string>("");
 
   const saveProject = async () => {
-    await GitDocsService.saveProject(projectName, projectDesc, projectTags);
+    await GitDocsService.saveProject(projectName, projectDesc, projectFolder, projectTags);
     closeModal();
   };
 
@@ -23,6 +24,7 @@ export const NewProject = ({ closeModal }) => {
           </p>
           <input onChange={(e) => setProjectName(e.target.value)} className={styles.modalInput} type="text" placeholder="Project Name" />
           <input onChange={(e) => setProjectDesc(e.target.value)} className={styles.modalInput} type="text" placeholder="Description" />
+          <input onChange={(e) => setProjectFolder(e.target.value)} className={styles.modalInput} type="text" placeholder="Folder" />
           <input onChange={(e) => setProjectTags(e.target.value)} className={styles.modalInput} type="text" placeholder="Tags" />
         </div>
         <div className={styles.modalButtons}>

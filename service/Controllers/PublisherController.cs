@@ -24,23 +24,25 @@
 
       var repoDetails = new List<object>();
 
-      foreach (var folder in childFolders)
+      foreach (var repoPath in childFolders)
       {
-        var gitPath = Path.Combine(folder, ".git");
+        var gitPath = Path.Combine(repoPath, ".git");
 
         if (Directory.Exists(gitPath))
         {
-          var description = _gitClient.GetMetadataValue(folder, "description");
-          var title = _gitClient.GetMetadataValue(folder, "title");
-          var tags = _gitClient.GetMetadataValue(folder, "tags");
-          var docRoot = _gitClient.GetMetadataValue(folder, "docroot");
+          var description = _gitClient.GetMetadataValue(repoPath, "description");
+          var title = _gitClient.GetMetadataValue(repoPath, "title");
+          var tags = _gitClient.GetMetadataValue(repoPath, "tags");
+          var docRoot = _gitClient.GetMetadataValue(repoPath, "docroot");
+          var folder = _gitClient.GetMetadataValue(repoPath, "folder");
 
           repoDetails.Add(new
           {
-            name = Path.GetFileName(folder),
+            name = Path.GetFileName(repoPath),
             description,
             title,
             tags,
+            folder,
             docRoot
           });
 
@@ -51,7 +53,7 @@
     }
 
     [HttpPost]
-    public ActionResult CreateManagedRepo(string repoName, string title, string description = "", string tags = "")
+    public ActionResult CreateManagedRepo(string repoName, string title, string description = "", string folder = "", string tags = "")
     {
       repoName = repoName.Trim();
       var reposPath = _gitClient.VerifyReposFolder();
@@ -68,14 +70,10 @@
 
       try
       {
-        using (var repo = new Repository(repoPath))
-        {
-          repo.Config.Set("repository.description", description);
-
-          // Use the provided title or default to the repo name if no title is given
-          repo.Config.Set("repository.title", string.IsNullOrEmpty(title) ? repoName : title);
-          repo.Config.Set("repository.tags", tags);
-        }
+        _gitClient.SetMetadataValue(repoPath, "description", description);
+        _gitClient.SetMetadataValue(repoPath, "title", string.IsNullOrEmpty(title) ? repoName : title);
+        _gitClient.SetMetadataValue(repoPath, "tags", tags);
+        _gitClient.SetMetadataValue(repoPath, "folder", folder.ToLower());
       }
       catch (LibGit2SharpException ex)
       {
@@ -86,7 +84,7 @@
     }
 
     [HttpPost("import")]
-    public ActionResult ImportManagedrepo(string repoName, string title, string repoUrl, string description = "", string branchName = "master", string defaultFolder = "/", string tags = "")
+    public ActionResult ImportManagedrepo(string repoName, string title, string repoUrl, string description = "", string folder = "", string branchName = "master", string defaultFolder = "/", string tags = "")
     {
       repoName = repoName.Trim();
       var reposPath = _gitClient.VerifyReposFolder();
@@ -124,6 +122,7 @@
         _gitClient.SetMetadataValue(repoPath, "title", string.IsNullOrEmpty(title) ? repoName : title);
         _gitClient.SetMetadataValue(repoPath, "tags", tags);
         _gitClient.SetMetadataValue(repoPath, "docroot", defaultFolder);
+        _gitClient.SetMetadataValue(repoPath, "folder", folder.ToLower());
 
         Task.Run(() =>
         {

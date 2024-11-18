@@ -3,28 +3,77 @@ import './css/app.css'
 
 import GitDocsService from "../gitdocs.service";
 import { NewProject } from './NewProject';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { generateTitle } from '../utils';
 import { IoAddSharp } from "react-icons/io5";
 import { GitRepo } from './types';
 import { VscAzureDevops } from 'react-icons/vsc';
 import { ImportRepo } from './ImportRepo';
+import { FaFolder } from 'react-icons/fa';
+
+import * as FaIcons from 'react-icons/fa';
+import * as DiIcons from 'react-icons/di';
+import * as SiIcons from 'react-icons/si';
 
 function App() {
   const [docs, setDocs] = useState<GitRepo[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const folder = new URLSearchParams(location.search).get('folder') ?? "";
+  const [folders, setFolders] = useState<string[]>([]);
+
+  const iconLibraries = {
+    Fa: FaIcons,
+    Di: DiIcons,
+    Si: SiIcons,
+  };
+
+  const capitalizeFirstLetter = (str: string): string => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  const FolderIconRenderer = ({ iconName }) => {
+
+    for (const library in iconLibraries) {
+      const IconComponent = iconLibraries[library]?.[library + capitalizeFirstLetter(iconName).replace(/\s/g, "")] ||
+        iconLibraries[library]?.[library + "Microsoft" + iconName];
+
+      if (IconComponent) {
+        return <IconComponent />;
+      }
+    }
+    return <FaFolder />;
+  };
 
   const loadDocs = () => {
     GitDocsService.getAllDocumenets().then((response) => {
-      setDocs(response.data);
+      const docs = response.data;
+      setDocs(docs.filter(doc => doc.folder == folder));
+
+      const childFolders = Array.from(new Set(docs.filter(doc => doc.folder != folder)
+        .map(doc => doc.folder)
+        .filter(f => f.startsWith(folder))
+        .map(f => {
+          let result = f.slice(folder.length);
+
+          if (result.startsWith("/")) {
+            result = result.slice(1);
+          }
+          return result.split("/")[0];
+        })));
+      setFolders(childFolders)
     })
   };
 
   useEffect(() => {
+    const t = setInterval(() => {
+      loadDocs();
+    }, 5000);
     loadDocs();
-  }, [showModal])
+    return () => clearInterval(t);
+  }, [showModal, showImportModal, folder])
 
   const hashString = (str) => {
     let hash = 0;
@@ -64,11 +113,18 @@ function App() {
     <>
       <div className="container">
         {
+          folders.map(f => (
+            <button className='folder-button' onClick={() => {
+              navigate(`/?folder=${folder ? folder + '/' + f : f}`);
+            }}><FolderIconRenderer iconName={f} />{generateTitle(f, false)}</button>
+          ))
+        }
+        {
           docs.map(doc => (
             <div className="doc-card" onClick={() => {
               navigate(`/doc/${doc.name}`);
             }}>
-              <div className="doc-card-title"><Link key={doc.name} to={`/doc/${doc.name}`}>{generateTitle(doc.title, false)}</Link></div>
+              <div className="doc-card-title"><Link key={doc.name} to={`/doc/${doc.name}`}>{generateTitle(doc.title || doc.name, false)}</Link></div>
               <div className="doc-card-desc">
                 {doc.description}
               </div>
@@ -91,11 +147,9 @@ function App() {
         }
         <button onClick={() => {
           setShowModal(true);
-          loadDocs();
         }} className="addproject-button"><IoAddSharp />New Project</button>
         <button onClick={() => {
           setShowImportModal(true);
-          loadDocs();
         }} className='importdevops-button'><VscAzureDevops />Import Repo</button>
       </div >
       {showModal && <NewProject closeModal={() => setShowModal(false)} />}

@@ -10,6 +10,8 @@ export interface GitRepo {
   name: string;
   description: string;
   tags: string;
+  docRoot: string;
+  folder: string;
 }
 
 export interface SearchResult {

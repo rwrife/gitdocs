@@ -49,7 +49,7 @@ namespace service.Models
     {
       using (var repo = new Repository(repoPath))
       {
-        repo.Config.Set("repository.{metadataKey.ToLower()}", value);
+        repo.Config.Set($"repository.{metadataKey.ToLower()}", value);
       }
     }
 
