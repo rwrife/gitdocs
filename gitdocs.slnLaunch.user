@@ -1,0 +1,16 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "service\\service.csproj",
+        "Action": "Start",
+        "DebugTarget": "https"
+      },
+      {
+        "Path": "indexer\\indexer.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

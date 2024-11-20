@@ -25,9 +25,9 @@ function App() {
   const [folders, setFolders] = useState<string[]>([]);
 
   const iconLibraries = {
+    Si: SiIcons,
     Fa: FaIcons,
     Di: DiIcons,
-    Si: SiIcons,
   };
 
   const capitalizeFirstLetter = (str: string): string => {

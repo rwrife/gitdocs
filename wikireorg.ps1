@@ -1,5 +1,5 @@
 # Define the directory containing the markdown files
-$SourceDir = "C:\Users\ryrife\projects\GitDocs\repos\osg-wiki"
+$SourceDir = "C:\Users\ryrife\Downloads\osgwiki\osgwiki"
 
 # Define the number of files per folder
 $FilesPerFolder = 100

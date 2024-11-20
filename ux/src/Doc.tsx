@@ -6,7 +6,7 @@ import styles from "./css/doc.module.css";
 import { Link } from 'react-router-dom';
 import { FaFolder, FaFile, FaFileImage, FaCodeBranch, FaPlus } from "react-icons/fa";
 import { TocItem } from './types';
-import Markdown from 'https://esm.sh/react-markdown@9'
+import Markdown from 'react-markdown'
 import {
   isRouteToMd,
   getRouteExtension,

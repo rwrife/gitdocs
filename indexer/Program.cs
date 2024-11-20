@@ -1,14 +1,21 @@
-﻿using Lucene.Net.Analysis.Standard;
+﻿using Lucene.Net.Analysis;
+using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
+using System.Web;
 using Document = Lucene.Net.Documents.Document;
 
 class Program
 {
   private static string watchDirectory;
   private static string luceneIndexPath;
-  private static IndexWriter? writer;
+  ///private static IndexWriter? writer;
+  private static FSDirectory indexDir;
+  private static StandardAnalyzer analyzer;
+
+  private static List<string> filesToIndex = new List<string>();
+  private static List<string> filesToDelete = new List<string>();
 
   private static bool keepRunning = true;
 
@@ -37,12 +44,13 @@ class Program
 
   public static async Task ReindexAllFiles()
   {
-    writer.DeleteAll();  // Clear existing indexes
+    using (var writer = new IndexWriter(indexDir, analyzer, new IndexWriter.MaxFieldLength(IndexWriter.DEFAULT_MAX_FIELD_LENGTH)))
+    {
+      writer.DeleteAll();  // Clear existing indexes
+    }
     IndexFiles(watchDirectory);  // Reindex all files in watchDirectory
-    writer.Commit();  // Save changes
     Console.WriteLine("Reindexing completed.");
   }
-
 
   static async Task Main(string[] args)
   {
@@ -51,13 +59,10 @@ class Program
     luceneIndexPath = Path.GetFullPath("../../../../index", currentDirectory);
 
     // Initialize Lucene index writer
-    var analyzer = new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);
+    analyzer = new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_30);
     System.IO.Directory.CreateDirectory(luceneIndexPath);
-    var indexDir = FSDirectory.Open(luceneIndexPath);
-
-    writer = new IndexWriter(indexDir, analyzer, new IndexWriter.MaxFieldLength(IndexWriter.DEFAULT_MAX_FIELD_LENGTH));
-
-    
+    indexDir = FSDirectory.Open(luceneIndexPath);
+       
     // Set up the FileSystemWatcher
     FileSystemWatcher watcher = new FileSystemWatcher
     {
@@ -73,32 +78,76 @@ class Program
     watcher.Deleted += MarkdownFileDelete;
     watcher.EnableRaisingEvents = true;
 
+    // a background task to watch for changes to filesToIndex
+    var indexerTask = Task.Run(() =>
+    {
+      while(keepRunning)
+      {
+        if(filesToIndex.Count > 0)
+        {
+          var file = filesToIndex[0];
+          if (file != null)
+          {
+            filesToIndex.RemoveAt(0);
+            IndexFileWithRetry(file);
+          }
+        }
+
+        if (filesToDelete.Count > 0)
+        {
+          var file = filesToDelete[0];
+          if (file != null)
+          {
+            filesToDelete.RemoveAt(0);
+            DeleteFileIndex(file);
+          }
+        }
+
+        Task.Delay(1000);
+      }
+    });
+
     var monitorTask = MonitorForReindexKey();
     await monitorTask;
-
-    // Dispose the writer on exit
-    writer.Dispose();
   }
 
   private static void MarkdownFileDelete(object sender, FileSystemEventArgs e)
   {
-    Console.WriteLine($"Deleting index for {e.Name}");
-    writer.DeleteDocuments(new Term("fullpath", e.FullPath));
-    writer.Commit();
+    Console.WriteLine($"Markdown file deleted: {e.FullPath}");
+    filesToDelete.Add(e.FullPath);
+  }
+
+  private static void DeleteFileIndex(string fullPath)
+  {
+    try
+    {
+      using (var writer = new IndexWriter(indexDir, analyzer, new IndexWriter.MaxFieldLength(IndexWriter.DEFAULT_MAX_FIELD_LENGTH)))
+      {
+        Console.WriteLine($"Deleting index for {Path.GetFileName(fullPath)}");
+        writer.DeleteDocuments(new Term("fullpath", fullPath));
+        writer.Commit();
+      }
+    } catch
+    {
+      Console.Write($"Failed to remove {Path.GetFileName(fullPath)}!");
+    }
   }
 
   private static void MarkdownFileRename(object sender, RenamedEventArgs e)
   {
-    Console.WriteLine($"Updating index for {e.Name}");
-    writer.DeleteDocuments(new Term("fullpath", e.OldFullPath));
-    writer.Commit();
-    IndexFileWithRetry(e.FullPath);
+    using (var writer = new IndexWriter(indexDir, analyzer, new IndexWriter.MaxFieldLength(IndexWriter.DEFAULT_MAX_FIELD_LENGTH)))
+    {
+      Console.WriteLine($"Updating index for {e.Name}");
+      writer.DeleteDocuments(new Term("fullpath", e.OldFullPath));
+      writer.Commit();
+    }
+    IndexFileWithRetry(e.FullPath);    
   }
 
   private static void MarkdownFileChange(object sender, FileSystemEventArgs e)
   {
     Console.WriteLine($"New markdown file detected: {e.FullPath}");
-    IndexFileWithRetry(e.FullPath);
+    filesToIndex.Add(e.FullPath);
   }
 
   private static void IndexFiles(string directoryPath)
@@ -120,7 +169,7 @@ class Program
     {
       try
       {        
-        IndexFile(filePath);
+        await IndexFile(filePath);
         Console.WriteLine($"Indexed {filePath}");
         break;
       }
@@ -132,38 +181,66 @@ class Program
     }
   }
 
-  private static void IndexFile(string filePath)
+  private static async Task IndexFile(string filePath)
   {
-    var file = new FileInfo(filePath);
-    Console.WriteLine($"Indexing {file.Name}...");
-    var relativeRoot = Path.GetRelativePath(watchDirectory, file.DirectoryName); // Root folder relative to watchDirectory
-    var reponame = relativeRoot.Split(System.IO.Path.DirectorySeparatorChar)[0];
-    var relativePath = Path.GetRelativePath(Path.Combine(watchDirectory, reponame), file.FullName);
-
-    try
+    using (var writer = new IndexWriter(indexDir, analyzer, new IndexWriter.MaxFieldLength(IndexWriter.DEFAULT_MAX_FIELD_LENGTH)))
     {
-      string content;
 
-      using (var fileStream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
-      using (var reader = new StreamReader(fileStream))
+      var file = new FileInfo(filePath);
+      Console.WriteLine($"Indexing {file.Name}...");
+      var relativeRoot = Path.GetRelativePath(watchDirectory, file.DirectoryName); // Root folder relative to watchDirectory
+      var reponame = relativeRoot.Split(System.IO.Path.DirectorySeparatorChar)[0];
+      var relativePath = Path.GetRelativePath(Path.Combine(watchDirectory, reponame), file.FullName);
+
+      try
       {
-        char[] buffer = new char[1024]; // Buffer for 1 KB
-        int bytesRead = reader.Read(buffer, 0, buffer.Length);
-        content = new string(buffer, 0, bytesRead);
+        string content;
+
+        using (var fileStream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
+        using (var reader = new StreamReader(fileStream))
+        {
+          char[] buffer = new char[1048]; // Buffer for 1 KB
+          int bytesRead = reader.Read(buffer, 0, buffer.Length);
+          content = new string(buffer, 0, bytesRead);
+        }
+
+        Document doc = new Document();
+        doc.Add(new Field("content", content, Field.Store.YES, Field.Index.ANALYZED));
+        doc.Add(new Field("title", GenerateTitle(Path.GetFileName(filePath).Split('.')[0]), Field.Store.YES, Field.Index.ANALYZED));
+        doc.Add(new Field("fullpath", file.FullName, Field.Store.YES, Field.Index.NO));
+        doc.Add(new Field("filepath", relativePath, Field.Store.YES, Field.Index.NO));
+        doc.Add(new Field("reponame", reponame, Field.Store.YES, Field.Index.NO));
+
+        writer.AddDocument(doc);
       }
+      catch (Exception ex)
+      {
+        Console.WriteLine("Could not index file, try again later.");
 
-      Document doc = new Document();
-      doc.Add(new Field("content", content, Field.Store.YES, Field.Index.ANALYZED));
-      doc.Add(new Field("fullpath", file.FullName, Field.Store.YES, Field.Index.NO));
-      doc.Add(new Field("filepath", relativePath, Field.Store.YES, Field.Index.NO));
-      doc.Add(new Field("reponame", reponame, Field.Store.YES, Field.Index.NO));
-
-      writer.AddDocument(doc);
+      }
     }
-    catch (Exception ex)
+  }
+  public static string GenerateTitle(string name, bool removeExtension = true)
+  {
+    // Remove the file extension for files
+    if (removeExtension)
     {
-      Console.WriteLine("Could not index file, try again later.");
-
+      name = Path.GetFileNameWithoutExtension(name);
     }
+
+    // Replace hyphens with spaces
+    name = name.Replace("-", " ");
+
+    // Insert spaces before capital letters only if preceded by a lowercase letter
+    name = System.Text.RegularExpressions.Regex.Replace(name, "(?<=[a-z])(?=[A-Z])", " ");
+
+    // Remove any multiple spaces and trim the string
+    name = System.Text.RegularExpressions.Regex.Replace(name, @"\s+", " ").Trim();
+
+    // Capitalize the first letter of each word
+    name = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(name);
+
+    // HTML encode special characters
+    return HttpUtility.UrlDecode(name);
   }
 }

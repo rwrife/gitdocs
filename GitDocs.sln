@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "service", "service\service.
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "ux", "ux\ux.esproj", "{6A146F97-E711-4C78-A6B0-30D60913B89B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "indexer", "indexer\indexer.csproj", "{68A71EE5-7154-49BA-B3DB-ED32C7CCD4F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "indexer", "indexer\indexer.csproj", "{68A71EE5-7154-49BA-B3DB-ED32C7CCD4F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

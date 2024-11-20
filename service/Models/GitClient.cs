@@ -39,9 +39,15 @@ namespace service.Models
 
     public string GetMetadataValue(string repoPath, string metadataKey)
     {
-      using (var repo = new Repository(repoPath))
+      try
       {
-        return repo.Config.FirstOrDefault(c => c.Key == $"repository.{metadataKey.ToLower()}")?.Value?.ToString() ?? "";
+        using (var repo = new Repository(repoPath))
+        {
+          return repo.Config.FirstOrDefault(c => c.Key == $"repository.{metadataKey.ToLower()}")?.Value?.ToString() ?? "";
+        }
+      }
+      catch {
+        return "";
       }
     }
 

@@ -102,6 +102,8 @@
   justify-content: start;
   background-color: #5476d6;
   min-height: 24px;
+  white-space: break-spaces;
+  overflow-x: auto;
 }
 
 .answer:has(.loader) {
@@ -109,6 +111,8 @@
 }
 
 .question {
+  white-space: break-spaces;
+  overflow-x: auto;
   justify-content: end;
   background-color: rgb(64, 160, 27);
 }
