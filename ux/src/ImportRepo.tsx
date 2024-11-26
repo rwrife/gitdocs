@@ -13,7 +13,7 @@ export const ImportRepo = ({ closeModal }) => {
   const [repoFolder, setRepoFolder] = React.useState<string>("");
 
   const saveProject = async () => {
-    await GitDocsService.importRepo(projectName, projectDesc, projectTags, repoUrl, repoBranch, repoFolder);
+    await GitDocsService.importRepo(projectName, projectDesc, projectTags, repoUrl, repoBranch, projectFolder, repoFolder);
     closeModal();
   };
 

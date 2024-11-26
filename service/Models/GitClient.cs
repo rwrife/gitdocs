@@ -53,6 +53,11 @@ namespace service.Models
 
     public void SetMetadataValue(string repoPath, string metadataKey, string value)
     {
+      if(String.IsNullOrEmpty(value) || value == "undefined")
+      {
+        return;
+      }
+
       using (var repo = new Repository(repoPath))
       {
         repo.Config.Set($"repository.{metadataKey.ToLower()}", value);

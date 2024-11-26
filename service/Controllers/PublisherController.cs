@@ -84,7 +84,7 @@
     }
 
     [HttpPost("import")]
-    public ActionResult ImportManagedrepo(string repoName, string title, string repoUrl, string description = "", string folder = "", string branchName = "master", string defaultFolder = "/", string tags = "")
+    public ActionResult ImportManagedrepo(string repoName, string title, string repoUrl, string description = "", string projectFolder = "", string branchName = "master", string defaultFolder = "/", string tags = "")
     {
       repoName = repoName.Trim();
       var reposPath = _gitClient.VerifyReposFolder();
@@ -122,7 +122,7 @@
         _gitClient.SetMetadataValue(repoPath, "title", string.IsNullOrEmpty(title) ? repoName : title);
         _gitClient.SetMetadataValue(repoPath, "tags", tags);
         _gitClient.SetMetadataValue(repoPath, "docroot", defaultFolder);
-        _gitClient.SetMetadataValue(repoPath, "folder", folder.ToLower());
+        _gitClient.SetMetadataValue(repoPath, "folder", projectFolder.ToLower());
 
         Task.Run(() =>
         {
@@ -130,7 +130,13 @@
           {
             var remote = repo.Network.Remotes["origin"];
             Commands.Fetch(repo, remote.Name, remote.FetchRefSpecs.Select(x => x.Specification), options.FetchOptions, null);
-            Commands.Checkout(repo, branchName);
+            try
+            {
+              Commands.Checkout(repo, branchName);
+            } catch
+            {
+
+            }
           }
         });
 
